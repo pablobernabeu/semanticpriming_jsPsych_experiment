@@ -154,28 +154,29 @@
     var instructional_manipulation_check = {
       type: jsPsychHtmlKeyboardResponse,
       trial_duration: 10000,
+      choices: 'ALL_KEYS',
       data: { task: 'instructional_manipulation_check' },
       stimulus: function(data) {
         if(jsPsych.data.getLastTrialData().values()[0].random_position == 0) {
-          return '<p>Performance has been low. Please enter the ' +
+          return '<p><b>Attention check!</b> Please enter the ' +
             '<b>first</b> number in the following sequence: ' +
             '<span style="font-weight:bold;">' +
             jsPsych.data.getLastTrialData().values()[0].random_number +
             '</span></p>'
         } else if(jsPsych.data.getLastTrialData().values()[0].random_position == 1) {
-          return '<p>Performance has been low. Please enter the ' +
+          return '<p><b>Attention check!</b> Please enter the ' +
             '<b>second</b> number in the following sequence: ' +
             '<span style="font-weight:bold;">' +
             jsPsych.data.getLastTrialData().values()[0].random_number +
             '</span></p>'
         } else if(jsPsych.data.getLastTrialData().values()[0].random_position == 2) {
-          return '<p>Performance has been low. Please enter the ' +
+          return '<p><b>Attention check!</b> Please enter the ' +
             '<b>third</b> number in the following sequence: ' +
             '<span style="font-weight:bold;">' +
             jsPsych.data.getLastTrialData().values()[0].random_number +
             '</span></p>'
         } else if(jsPsych.data.getLastTrialData().values()[0].random_position == 3) {
-          return '<p>Performance has been low. Please enter the ' +
+          return '<p><b>Attention check!</b> Please enter the ' +
             '<b>fourth</b> number in the following sequence: ' +
             '<span style="font-weight:bold;">' +
             jsPsych.data.getLastTrialData().values()[0].random_number +
@@ -256,7 +257,7 @@
       choices: [' '],
       trial_duration: 15000,
       stimulus: [
-        '<div>Welcome to the first task.<br>Each screen will show a string of letters. Please ' +
+        '<div>Welcome to the next task. Each screen will show a string of letters. Please ' +
         'press <button>J</button> if the letters form a real word (for instance, <i>flask</i>), or ' +
         'press <button>F</button> if they do <i>not</i> (for instance, <i>wreet</i>). Please only ' +
         'respond once you see the letters. At that point, try to respond as accurately and ' +

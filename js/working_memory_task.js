@@ -99,7 +99,7 @@ var staircaseChecker = [];  // for assessing whether the span should move up/dow
 var staircaseIndex = 0;  // index for the current staircase
 var digit_list = [1, 2, 3, 4, 5, 6, 7, 8, 9];  // digits to be used
 
-var startingSpan = 3;  // where we begin in terms of span
+var startingSpan = 2;  // where we begin in terms of span
 var currentSpan;  // to reference where participants currently are
 var spanHistory = [];  // easy logging of the participant's trajectory
 var stimList;  // this is going to house the ordering of the stimuli for each trial
@@ -192,7 +192,7 @@ in the practice trials and in the main trials. */
 
 var practice_response_grid =
   '<div class = numbox style="top:40%;">' +
-  '<p style"font-size:18px; line-height:1.2; margin-top:-32px;"><b>Reminder:</b> Enter the digits in reverse order and press the space bar.</p>' +
+  '<p style"font-size:18px; line-height:1.2; margin-top:-32px;"><b>Reminder:</b> Enter the digits in reverse order and press the space bar as fast as possible.</p>' +
   '<button id = button_1 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>1</div></div></button>' +
   '<button id = button_2 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>2</div></div></button>' +
   '<button id = button_3 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>3</div></div></button>' +
@@ -234,24 +234,46 @@ var WorkMem_practice_instructions = {
     '<button>2</button> and <button>3</button>, you would need to click on the ' +
     'numbers <button>3</button>, <button>2</button> and <button>1</button>. Please ' +
     'do <b><i>not</i></b> use any memory aid but do the task solely in your head. ' +
-    'Please try to respond as accurately and fast as possible.<br><br></div>',
+    'Please try to respond as accurately and fast as possible. You will be able to ' +
+    're-read the main instructions in the response screen. If the first trial is ' +
+    'answered incorrectly, a second trial will appear with a different sequence of ' +
+    'numbers.<br><br></div>',
   choices: ['Click to begin the practice'],
+  trial_duration: 40000,
+};
+
+// Prepare repeated instructions
+var repeat_WorkMem_practice_instructions = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: 
+    "<div>The response was incorrect so let's try again. Like before, you will see " +
+    'a sequence of digits and be asked to type them back in reverse order, using ' +
+    'your mouse. For example, if you saw the digits <button>1</button>, ' +
+    '<button>2</button> and <button>3</button>, you would need to click on the ' +
+    'numbers <button>3</button>, <button>2</button> and <button>1</button>. ' +
+    'Please do <b><i>not</i></b> use any memory aid but do the task solely in your ' +
+    'head. Please try to respond as accurately and fast as possible. You will be ' +
+    'able to re-read the main instructions in the response screen. If the first ' +
+    'trial is answered incorrectly, a second trial will appear with a different ' +
+    'sequence of numbers.<br><br></div>',
+  choices: ['Click to repeat the practice'],
   trial_duration: 40000,
 };
 
 var WorkMem_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: 
-    '<div>The next task is like the first one you performed, in which you had to recall ' +
-    'digits in reverse order. The differences are that, in the present case, there will ' +
-    'be more trials, which will will be faster, and the number of digits presented on ' +
-    'each trial may vary. The rest is identical: On each trial, you will see a sequence ' +
-    'of digits and be asked to type them back in reverse order, using your mouse. For ' +
-    'example, if you saw the digits <button>1</button>, <button>2</button> and ' +
-    '<button>3</button>, you would need to click on the numbers <button>3</button>, ' +
-    '<button>2</button> and <button>1</button>. Please do <b><i>not</i></b> use any ' +
-    'memory aid but do the task solely in your head. Please try to respond as accurately ' +
-    'and fast as possible.<br></div>',
+    '<div>The next task is like the first one you performed, in which you had to ' +
+    'recall digits in reverse order. The differences are that, in the present case, ' +
+    'there will be more trials, which will will be faster, and the number of ' +
+    'digits presented on each trial may vary. The rest is identical: On each trial, ' +
+    'you will see a sequence of digits and be asked to type them back in reverse ' + 
+    'order, using your mouse. For example, if you saw the digits ' +
+    '<button>1</button>, <button>2</button> and <button>3</button>, you would need ' +
+    'to click on the numbers <button>3</button>, <button>2</button> and ' +
+    '<button>1</button>. Please do <b><i>not</i></b> use any memory aid but do the ' +
+    'task solely in your head. Please try to respond as accurately and fast as ' +
+    'possible.<br></div>',
   choices: ['Click to proceed'],
   trial_duration: 40000,
 };
@@ -468,24 +490,9 @@ var WorkMem_practice_timeline = {
 	}
 };
 
-// Prepare repeated instructions
-var repeat_WorkMem_instructions = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 
-    "<div>The response was incorrect so let's try again. Like before, you will see " +
-    'a sequence of digits and be asked to type them back in reverse order, using ' +
-    'your mouse. For example, if you saw the digits <button>1</button>, ' +
-    '<button>2</button> and <button>3</button>, you would need to click on the ' +
-    'numbers <button>3</button>, <button>2</button> and <button>1</button>. ' +
-    'Please do <b><i>not</i></b> use any memory aid but do the task solely in your ' +
-    'head. Please try to respond as accurately and fast as possible.<br><br></div>',
-  choices: ['Click to repeat the practice'],
-  trial_duration: 40000,
-};
-
 // Present instructions again if accuracy rate < 100%
-var conditional_repeat_WorkMem_instructions = {
-  timeline: [repeat_WorkMem_instructions],
+var conditional_repeat_WorkMem_practice_instructions = {
+  timeline: [repeat_WorkMem_practice_instructions],
   conditional_function: function() {
     if(jsPsych.data.get().filter({
       task: 'WorkMem_practice', 
@@ -567,7 +574,7 @@ var conditional_WorkMem_repeated_practice_debrief = {
 var working_memory_practice = {
 	timeline: [
 	  WorkMem_practice_instructions, WorkMem_practice_timeline, 
-	  conditional_repeat_WorkMem_instructions, 
+	  conditional_repeat_WorkMem_practice_instructions, 
 	  WorkMem_repeated_practice_trials,
 	  conditional_WorkMem_repeated_practice_debrief
 	  ]
