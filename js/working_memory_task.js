@@ -5,15 +5,15 @@
 /********************************************/
 
 /* 
-The working memory task is operationalised through a backward digit span task.
+The working memory task is operationalised with a backward digit span task.
 This task draws on the code shared by Stephen Van Hedger at 
 https://github.com/svanhedger/jspsych/blob/master/scripts/backward-digit-span 
 
 Procedure. On each trial, participants see a string of digits. Then, they 
-must click on buttons to report these digits in reverse order. The task is 
-adaptive based on a 1:2 staircase procedure. That is, a correct answer will 
-increase the digit span by one, whereas two incorrect answers in a row will 
-decrease the span by one.
+must click on buttons to report these digits in reverse order. The task 
+is adaptive based on a 1:2 staircase procedure. That is, a correct answer 
+will increase the digit span by one, whereas two incorrect answers in a 
+row will decrease the span by one.
 */
 
 
@@ -91,7 +91,7 @@ var reversedDigitString;  // reversed digit string
 var totalCorrect = 0;  // counter for total correct
 var totalTrials = 0;  // counter for total trials
 var TrialNum = 1;  // counter for trials
-var WorkMem_PracticeTrials = 1;  // number of trials in the practice part
+var WorkMem_PracticeTrials = 4;  // number of trials in the practice part
 var WorkMem_MainTrials = 15;  // number of trials in the main part
 var response = [];  // for storing partcipants' responses
 var WorkMem_correct_ans;  // for storing the correct answer on a given trial
@@ -99,7 +99,7 @@ var staircaseChecker = [];  // for assessing whether the span should move up/dow
 var staircaseIndex = 0;  // index for the current staircase
 var digit_list = [1, 2, 3, 4, 5, 6, 7, 8, 9];  // digits to be used
 
-var startingSpan = 2;  // where we begin in terms of span
+var startingSpan = 3;  // where we begin in terms of span
 var currentSpan;  // to reference where participants currently are
 var spanHistory = [];  // easy logging of the participant's trajectory
 var stimList;  // this is going to house the ordering of the stimuli for each trial
@@ -178,7 +178,7 @@ function updateSpan() {
 		
 	// If they got the last two trials incorrect or did not respond, decrease the span
 	} else {
-		if(currentSpan > 3 && staircaseChecker.length == 2) {
+		if(currentSpan > startingSpan && staircaseChecker.length == 2) {
 			currentSpan -= 1;  // lower the span if last two trials were incorrect
 			staircaseChecker = [];  // reset the staircase checker
 			staircaseIndex = 0;  // reset the staircase index
@@ -189,24 +189,6 @@ function updateSpan() {
 
 /* General components of the trials, which will be used 
 in the practice trials and in the main trials. */
-
-var practice_response_grid =
-  '<div class = numbox style="top:40%;">' +
-  '<p style"font-size:18px; line-height:1.2; margin-top:-32px;"><b>Reminder:</b> Enter the digits in reverse order and press the space bar as fast as possible.</p>' +
-  '<button id = button_1 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>1</div></div></button>' +
-  '<button id = button_2 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>2</div></div></button>' +
-  '<button id = button_3 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>3</div></div></button>' +
-  '<button id = button_4 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>4</div></div></button>' +
-  '<button id = button_5 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>5</div></div></button>' +
-  '<button id = button_6 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>6</div></div></button>' +
-  '<button id = button_7 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>7</div></div></button>' +
-  '<button id = button_8 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>8</div></div></button>' +
-  '<button id = button_9 class = "square num-button" onclick = "recordClick(this)"><div class = content><div class = numbers>9</div></div></button>' +
-  // '<button class = clear_button id = "ClearButton" onclick = "clearResponse()">Clear</button>' +
-  // Padding space and user's input below
-  '<p style="font-size:1px"> &nbsp; </p>' +
-  '<button id=echoed_txt style="padding-top:5%; padding-right:8%; padding-bottom:5%; padding-left:8%;"><b></b></button>' +
-  '</div>'
 
 var response_grid =
   '<div class = numbox>' +
@@ -228,16 +210,13 @@ var response_grid =
 var WorkMem_practice_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: 
-    '<div>Welcome to the first task. You will see a sequence of digits and be asked ' +
-    'to type them back in reverse order, using your mouse, and then to confirm by ' +
-    'pressing the space bar. For example, if you saw the digits <button>1</button>, ' +
+    '<div>In the next task, you will see a sequence of digits and be asked to type ' +
+    'them in the reverse order, using your mouse, and then to confirm by pressing ' +
+    'the space bar. For example, if you saw the digits <button>1</button>, ' +
     '<button>2</button> and <button>3</button>, you would need to click on the ' +
     'numbers <button>3</button>, <button>2</button> and <button>1</button>. Please ' +
-    'do <b><i>not</i></b> use any memory aid but do the task solely in your head. ' +
-    'Please try to respond as accurately and fast as possible. You will be able to ' +
-    're-read the main instructions in the response screen. If the first trial is ' +
-    'answered incorrectly, a second trial will appear with a different sequence of ' +
-    'numbers.<br><br></div>',
+    'do the task solely in your head, and try to respond as accurately and fast as ' +
+    'possible.<br><br></div>',
   choices: ['Click to begin the practice'],
   trial_duration: 40000,
 };
@@ -246,16 +225,13 @@ var WorkMem_practice_instructions = {
 var repeat_WorkMem_practice_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: 
-    "<div>The response was incorrect so let's try again. Like before, you will see " +
-    'a sequence of digits and be asked to type them back in reverse order, using ' +
-    'your mouse. For example, if you saw the digits <button>1</button>, ' +
-    '<button>2</button> and <button>3</button>, you would need to click on the ' +
-    'numbers <button>3</button>, <button>2</button> and <button>1</button>. ' +
-    'Please do <b><i>not</i></b> use any memory aid but do the task solely in your ' +
-    'head. Please try to respond as accurately and fast as possible. You will be ' +
-    'able to re-read the main instructions in the response screen. If the first ' +
-    'trial is answered incorrectly, a second trial will appear with a different ' +
-    'sequence of numbers.<br><br></div>',
+    "<div>Some responses were incorrect so let's try again. Like before, you will see " +
+    'a sequence of digits and be asked to type them back in reverse order, using your ' +
+    'mouse. For example, if you saw the digits <button>1</button>, ' +
+    '<button>2</button> and <button>3</button>, you would need to click on the numbers ' +
+    '<button>3</button>, <button>2</button> and <button>1</button>. Please do the task ' +
+    'solely in your head, and try to respond as accurately and fast as possible.' +
+    '<br><br></div>',
   choices: ['Click to repeat the practice'],
   trial_duration: 40000,
 };
@@ -263,17 +239,9 @@ var repeat_WorkMem_practice_instructions = {
 var WorkMem_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: 
-    '<div>The next task is like the first one you performed, in which you had to ' +
-    'recall digits in reverse order. The differences are that, in the present case, ' +
-    'there will be more trials, which will will be faster, and the number of ' +
-    'digits presented on each trial may vary. The rest is identical: On each trial, ' +
-    'you will see a sequence of digits and be asked to type them back in reverse ' + 
-    'order, using your mouse. For example, if you saw the digits ' +
-    '<button>1</button>, <button>2</button> and <button>3</button>, you would need ' +
-    'to click on the numbers <button>3</button>, <button>2</button> and ' +
-    '<button>1</button>. Please do <b><i>not</i></b> use any memory aid but do the ' +
-    'task solely in your head. Please try to respond as accurately and fast as ' +
-    'possible.<br></div>',
+    '<div>The following trials will be very similar to the previous ones but the ' +
+    'number of digits presented on each trial will vary, and the responses ' +
+    'will need to be faster.<br><br></div>',
   choices: ['Click to proceed'],
   trial_duration: 40000,
 };
@@ -302,9 +270,9 @@ var setup_fixation = {
   	// Adjust trial number
   	TrialNum += 1
   	
-  	/* Reset trial number to 1 if the practice section was just passed in the 
-  	previous trial, indicating that the main trials have just begun. */
-  	if(jsPsych.data.get().last(2).values()[0].practice_passed == 'yes') {
+  	/* Reset trial number to 1 if the practice section 
+  	was finished in the previous trial. */
+  	if(jsPsych.data.get().last(2).values()[0].reset_TrialNum == 'yes') {
   	  TrialNum = 1
   	}
   	
@@ -377,21 +345,17 @@ var WorkMem_response_screen = {
     // Set interval with a varying duration to boost participants' attention
     return jsPsych.randomization.sampleWithoutReplacement([1400, 1450, 1500, 1550, 1600], 1)[0];
   },
-  stimulus: function() {
-    // In practice trials, show instructions above number box
-    if(jsPsych.data.getLastTrialData().values()[0].task == 'WorkMem_practice') {
-      return practice_response_grid 
-      } else {
-        return response_grid
-      }
-    },
+  stimulus: response_grid,
   choices: [' '],
   
-  // Bespoke data to be included in output
+  // Custom data to be included in output
 	on_finish: function(data){
 	  
-	  // Save trial number, subtracting 1 because otherwise the counter would start from 2
+	  /* Save trial number, subtracting 1 because 
+	  otherwise the counter would start from 2. */
     data.trial = TrialNum - 1;
+    
+    // Accuracy
 	  if(data.response !== null) {
   		if(JSON.stringify(response) === JSON.stringify(WorkMem_correct_ans)) {
   			data.accuracy = 1;
@@ -406,27 +370,29 @@ var WorkMem_response_screen = {
 
     // Overall accuracy rate so far, ranging between 0 and 1
 
-    var ReadAbil_total_correct =
+    var WorkMem_total_correct =
       jsPsych.data.get().filter({
         task: 'WorkMem_main',
         accuracy: 1
       }).count();
-    var ReadAbil_total_incorrect =
+      
+    var WorkMem_total_incorrect =
       jsPsych.data.get().filter({
         task: 'WorkMem_main',
         accuracy: 0
       }).count();
-    var ReadAbil_total_unanswered =
+      
+    var WorkMem_total_unanswered =
       jsPsych.data.get().filter({
         task: 'WorkMem_main',
         accuracy: 'unanswered'
       }).count();
 
     data.accuracy_rate =
-      ReadAbil_total_correct /
-      (ReadAbil_total_correct +
-        ReadAbil_total_incorrect +
-        ReadAbil_total_unanswered);
+      WorkMem_total_correct /
+      (WorkMem_total_correct +
+        WorkMem_total_incorrect +
+        WorkMem_total_unanswered);
         
 		response = [];  // clear the response for the next trial
 		staircaseIndex += 1;  // update the staircase index
@@ -436,21 +402,40 @@ var WorkMem_response_screen = {
 		data.correct = WorkMem_correct_ans;
 		data.spanHistory = spanHistory;
 		data.maxSpan = Math.max(...spanHistory)
+		
+		console.log('trial = ', data.trial)
+		console.log('jsPsych.data.get().count() = ', jsPsych.data.get().count())
     
-    // If first practice passed, set mark to be used for numbering trials
-    if(jsPsych.data.get().count() == WorkMem_PracticeTrials &&
+    // If practice has been passed, reset trial number to 1
+    if(data.trial == WorkMem_PracticeTrials &&
         (jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:'unanswered'}).count() +
-        jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:0}).count()) < 2) {
-      data.practice_passed = 'yes'
+        jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:0}).count()) < WorkMem_PracticeTrials) {
+      data.reset_TrialNum = 'yes'
     }
 	}
+};
+
+// Trial feedback
+var WorkMem_feedback = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: function() {
+    if(jsPsych.data.getLastTrialData().values()[0].accuracy == 1) {
+      return '<p><green-button> &check; </green-button></p>'
+    } else if(jsPsych.data.getLastTrialData().values()[0].accuracy == 0) {
+      return '<p><red-button> &#x2718; </red-button></p>'
+    } else if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'unanswered') {
+      return '<p><red-button> 0 </red-button></p>'
+    }
+  },
+  choices: 'NO_KEYS', trial_duration: 800
 };
 
 // Call function to update the span
 var staircase_assess = {
   type: jsPsychCallFunction,
   func: updateSpan
-}
+};
+
 
 // On selected trials, administer instructional manipulation check if accuracy rate < 80%
 var WorkMem_conditional_instructional_manipulation_check = {
@@ -478,16 +463,61 @@ var WorkMem_conditional_instructional_manipulation_check = {
 
 var WorkMem_practice_timeline = {
 	timeline: [setup_fixation, letter_proc, 
-	  WorkMem_response_screen, staircase_assess],
+	  WorkMem_response_screen, WorkMem_feedback,
+	  staircase_assess],
 	data: {task: 'WorkMem_practice'},
 	loop_function: function(){
 		// if we have reached the total number of trials, exit
-		if(TrialNum > WorkMem_PracticeTrials) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+		if(jsPsych.data.get().filter({
+		  task:'WorkMem_practice', 
+		  WorkMem_section: 'response'
+		  }).count() ==
+		  WorkMem_PracticeTrials) {
+		    return false;
+		    } else {
+		      return true;
+		      }
+		      }
+};
+
+// Overall feedback on all practice trials
+var WorkMem_practice_debrief = {
+  type: jsPsychHtmlKeyboardResponse,
+  choices: [' '],
+  trial_duration: 40000,
+
+  stimulus: function() {
+
+    // Tailor message to the results
+    
+    // If results good, keep message short
+    if(jsPsych.data.getLastTrialData().values()[0].accuracy_rate >= .8) {
+        return '<div>Practice completed In the next part, more digits will be presented ' +
+        'in each trial and faster responses will be required. Please press the space ' +
+        'space bar to begin.</div>'
+    
+    // If results not so good, present them
+    } else {
+    return '<div><b>Results of the practice</b><br>Your accuracy rate was ' +
+    Math.round(jsPsych.data.getLastTrialData().values()[0].accuracy_rate * 100) + '%.' +
+    'Please press the space bar to read the instructions again.</div>'
+    }
+  }
+};
+
+// Show feedback on all practice if accuracy rate < 100%
+var conditional_WorkMem_practice_debrief = {
+  timeline: [WorkMem_practice_debrief],
+  conditional_function: function() {
+    if(jsPsych.data.get().filter({
+      task: 'WorkMem_practice', 
+      WorkMem_section: 'response'
+    }).count() == WorkMem_PracticeTrials &&
+    jsPsych.data.getLastTrialData().values()[0].accuracy_rate < 1) {
+      return true;
+    } else { return false }
+  },
+  repetitions: 1
 };
 
 // Present instructions again if accuracy rate < 100%
@@ -503,81 +533,11 @@ var conditional_repeat_WorkMem_practice_instructions = {
   }
 };
 
-// Repeat practice trials if accuracy rate < 100%
-var WorkMem_repeated_practice_trials = {
-  timeline: [WorkMem_practice_timeline],
-  data: {practice_round: 2},
-  conditional_function: function() {
-      if(jsPsych.data.get().filter({
-        task: 'WorkMem_practice', 
-        accuracy: 1
-        }).count() < WorkMem_PracticeTrials) {
-          return true;
-      } else { return false }
-  }
-};
-
-// Feedback on both practice trials
-var WorkMem_repeated_practice_debrief = {
-  type: jsPsychHtmlKeyboardResponse,
-  choices: [' '],
-  trial_duration: function() {
-    if(jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:'unanswered'}).count() +
-       jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:0}).count() < 2) {
-      return 0
-    } else { return 20000 }
-  },
-  stimulus: function(data) {
-    return '<div>Unfortunately, ' +
-      (jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:'unanswered'}).count() +
-       jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:0}).count()) +
-       ' comprehension checks were failed. Therefore, the experiment cannot continue. ' +
-       'Please return to Prolific and click <button>Stop without Completing</button>. ' +
-       '<a href="https://app.prolific.co/submissions/complete?cc=CBXBRKZI">Click here to ' +
-       'return to <b>Prolific</b></a>. Thank you very much.</div>'
-  },
-  
-  on_finish: function(data) {
-    
-    // Set mark to be used for numbering trials
-    if(jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:'unanswered'}).count() +
-       jsPsych.data.get().filter({task:'WorkMem_practice', accuracy:0}).count() < 2) {
-      data.practice_passed = 'yes'
-      
-    // End experiment in case of insufficient accuracy in the second practice trial
-    } else {
-      jsPsych.endExperiment('<div>Please return to Prolific and click ' +
-        '<button>Stop without Completing</button>. ' +
-        '<a href="https://app.prolific.co/submissions/complete?cc=CBXBRKZI"> ' +
-        'Click here to return to <b>Prolific</b></a>. Thank you very much.</div>', 
-        data)
-    }
-  }
-};
-
-// Show second-round feedback if practice trials were repeated
-var conditional_WorkMem_repeated_practice_debrief = {
-  timeline: [WorkMem_repeated_practice_debrief],
-  conditional_function: function() {
-    if(jsPsych.data.get().filter({
-      task: 'WorkMem_practice', 
-      practice_round: 2, 
-      WorkMem_section: 'response'
-    }).count() == WorkMem_PracticeTrials) {
-      return true;
-    } else { return false }
-  },
-  repetitions: 1
-};
-
 // Timeline
 var working_memory_practice = {
-	timeline: [
-	  WorkMem_practice_instructions, WorkMem_practice_timeline, 
-	  conditional_repeat_WorkMem_practice_instructions, 
-	  WorkMem_repeated_practice_trials,
-	  conditional_WorkMem_repeated_practice_debrief
-	  ]
+	timeline: [ WorkMem_practice_instructions, 
+	  WorkMem_practice_timeline, 
+	  conditional_WorkMem_practice_debrief ]
 };
 
 
@@ -599,8 +559,11 @@ var WorkMem_main_timeline = {
 	}
 };
 
-// Include instructions at the beginning
+// Complete timeline for the working memory task
 var working_memory_task = {
-	timeline: [ WorkMem_instructions, WorkMem_main_timeline ]
+	timeline: [ working_memory_practice, 
+	WorkMem_instructions,
+	WorkMem_main_timeline ]
 };
+
 

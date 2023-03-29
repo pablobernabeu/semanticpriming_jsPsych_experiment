@@ -202,29 +202,24 @@
         }
       }
     };
-
-
-
-    /* The experiment contains two comprehension checks abiding by Prolific's 
-    policy (https://researcher-help.prolific.co/hc/en-gb/articles/360009223553).
-    The checks appear at the beginning of the experiment. If two attempts are 
-    failed, the experiment ends and the participant is asked to return to 
-    Prolific and click on 'Stop without Completing'. The first check corresponds 
-    to the working memory task. The second check corresponds to the reading 
-    ability task. */
     
 
-    /****************************************************/
-    /**  COMPREHENSION CHECK FOR WORKING MEMORY TASK   **/
-    /****************************************************/
-    
+
+
+
+    /********************************************/
+    /** WORKING MEMORY TASK (tag: 'WorkMem')   **/
+    /********************************************/
+
     // Push task to general timeline
-    language_vision_SemPri_TIMELINE.push(working_memory_practice);  // from working_memory_task.js
-    
+    language_vision_SemPri_TIMELINE.push(working_memory_task); // from working_memory_task.js
+
     // Transition to next task
     language_vision_SemPri_TIMELINE.push(break_between_tasks);
     
     
+    
+
 
     /**********************************************/
     /** READING ABILITY TASK (tag: 'ReadAbil')   **/
@@ -255,13 +250,13 @@
       type: jsPsychHtmlKeyboardResponse,
       prompt: '<p>Press the space bar to begin.</p>',
       choices: [' '],
-      trial_duration: 15000,
+      trial_duration: 40000,
       stimulus: [
-        '<div>Welcome to the next task. Each screen will show a string of letters. Please ' +
-        'press <button>J</button> if the letters form a real word (for instance, <i>flask</i>), or ' +
-        'press <button>F</button> if they do <i>not</i> (for instance, <i>wreet</i>). Please only ' +
-        'respond once you see the letters. At that point, try to respond as accurately and ' +
-        'fast as possible. Next, you can practise with some trials.</div>'
+        '<div>Welcome to the first task. Each screen will show a string of letters. Press ' +
+        '<button>J</button> if the letters form a real word (for instance, <i>flask</i>), ' +
+        'or press <button>F</button> if they do <i>not</i> (for instance, <i>wreet</i>). ' +
+        'Please respond when you have read the letters and decided whether they form a ' +
+        'real word. Please respond as accurately and fast as possible.</div>'
       ]
     };
     // Push to general timeline
@@ -283,7 +278,7 @@
         trial: jsPsych.timelineVariable('trial')
       },
       css_classes: ['stimulus'],
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
         // Log premature response attempts by writing 1
         if(data.response != null) {
@@ -309,7 +304,7 @@
         trial: jsPsych.timelineVariable('trial')
       },
       css_classes: ['stimulus'],
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
         // Log premature response attempts by writing 1
         if(data.response != null) {
@@ -359,7 +354,7 @@
         corr_rsp: jsPsych.timelineVariable('corr_rsp')
       },
 
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
 
         if(data.response != null) {
@@ -384,11 +379,13 @@
             task: jsPsych.timelineVariable('task'),
             accuracy: 'correct'
           }).count();
+          
         var ReadAbil_total_incorrect =
           jsPsych.data.get().filter({
             task: jsPsych.timelineVariable('task'),
             accuracy: 'incorrect'
           }).count();
+          
         var ReadAbil_total_unanswered =
           jsPsych.data.get().filter({
             task: jsPsych.timelineVariable('task'),
@@ -440,13 +437,11 @@
         trial: jsPsych.timelineVariable('trial')
       },
       stimulus: function() {
-        var last_trial_accuracy =
-          jsPsych.data.getLastTrialData().values()[0].accuracy;
-        if(last_trial_accuracy == 'correct') {
+        if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'correct') {
           return '<p><green-button> &check; </green-button></p>'
-        } else if(last_trial_accuracy == 'incorrect') {
+        } else if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'incorrect') {
           return '<p><red-button> &#x2718; </red-button></p>'
-        } else if(last_trial_accuracy == 'unanswered') {
+        } else if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'unanswered') {
           return '<p><red-button> 0 </red-button></p>'
         }
       },
@@ -471,10 +466,17 @@
     };
 
 
-    // PRACTICE TRIALS
+    // PRACTICE TRIALS with comprehension check
 
-    /* Two trials used as practice stimuli. Neither of these stimuli are present 
-    in the main part of the reading ability task or in the semantic priming task. */
+    /* Neither of these practice trials are present in the main part of the 
+    reading ability task or in the semantic priming task. These trials are 
+    also used as comprehension checks, which following Prolific's policy 
+    (https://researcher-help.prolific.co/hc/en-gb/articles/360009223553).
+    First, the checks appear at the beginning of the experiment. If two 
+    attempts are failed, the experiment ends and the participant is asked 
+    to return to Prolific and click on 'Stop without Completing'. The 
+    first check corresponds to the working memory task. The second check 
+    corresponds to the reading ability task. */
 
     var ReadAbil_practice_stimuli = [{
         'stim': 'wreet',
@@ -514,16 +516,19 @@
             task: 'ReadAbil_practice',
             accuracy: 'correct'
           }).count();
+          
         var ReadAbil_practice_trials_total_incorrect =
           jsPsych.data.get().filter({
             task: 'ReadAbil_practice',
             accuracy: 'incorrect'
           }).count();
+          
         var ReadAbil_practice_trials_total_unanswered =
           jsPsych.data.get().filter({
             task: 'ReadAbil_practice',
             accuracy: 'unanswered'
           }).count();
+          
         var ReadAbil_practice_trials_accuracy_rate =
           ReadAbil_practice_trials_total_correct /
           (ReadAbil_practice_trials_total_correct +
@@ -561,10 +566,7 @@
           var message =
             '<div><b>Results of the practice</b><br>' +
             'Your accuracy rate was ' +
-            Math.round(ReadAbil_practice_trials_accuracy_rate * 100) + '%' +
-            ' (' + ReadAbil_practice_trials_total_correct + ' correct trials, ' +
-            ReadAbil_practice_trials_total_incorrect + ' incorrect and ' +
-            ReadAbil_practice_trials_total_unanswered + ' unanswered).</div>'
+            Math.round(ReadAbil_practice_trials_accuracy_rate * 100) + '%.</div>'
 
           // Report any premature response attempts
 
@@ -573,7 +575,8 @@
             }).count() == 1) {
             var message = message +
               '<div>There was a response attempt before the word had been presented. ' +
-              'Please respond only when the word appears on the screen.</div>';
+              'Please respond only when you have read the letters and decided whether ' +
+              'they form a real word.</div>';
 
           } else if(jsPsych.data.get().filter({
               premature_response_attempts: 'yes'
@@ -584,7 +587,8 @@
                 premature_response_attempts: 'yes'
               }).count() +
               ' response attempts before the word had been presented. Please ' +
-              'respond only when the word appears on the screen.</div>';
+              'respond only when you have read the letters and decided whether ' +
+              'they form a real word.</div>';
           }
 
           // Display entire message
@@ -696,7 +700,8 @@
             }).count() == 1) {
             var message = message +
               '<br>There was a response attempt before the word had been presented. ' +
-              'Please respond only when the word appears on the screen.<br>';
+              'Please respond only when you have read the letters and decided whether ' +
+              'they form a real word.<br>';
 
           } else if(jsPsych.data.get().filter({
               task: 'ReadAbil_practice',
@@ -710,7 +715,8 @@
                 premature_response_attempts: 'yes'
               }).count() +
               ' response attempts before the word had been presented. ' +
-              'Please respond only when the word appears on the screen.<br>';
+              'Please respond only when you have read the letters and ' +
+              'decided whether they form a real word.<br>';
           }
 
           // Finish message and display it
@@ -894,7 +900,7 @@
       },
       data: { trial: jsPsych.timelineVariable('trial') },
       css_classes: ['stimulus'],
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
         // Track progress in the console
         console.log(
@@ -920,7 +926,7 @@
       trial_duration: 150,
       data: { trial: jsPsych.timelineVariable('trial') },
       css_classes: ['stimulus'],
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
         // Log premature response attempts by writing 1
         if(data.response != null) {
@@ -943,7 +949,7 @@
         ISInterval: jsPsych.timelineVariable('ISInterval')
       },
       css_classes: ['stimulus'],
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
         // Log premature response attempts by writing 1
         if(data.response != null) {
@@ -966,7 +972,7 @@
       trial_duration: 150,
       data: { trial: jsPsych.timelineVariable('trial') },
       css_classes: ['stimulus'],
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
         // Log premature response attempts by writing 1
         if(data.response != null) {
@@ -999,7 +1005,7 @@
         ISInterval: jsPsych.timelineVariable('ISInterval')
       },
 
-      // Bespoke data to be included in output
+      // Custom data to be included in output
       on_finish: function(data) {
 
         if(data.response != null) {
@@ -1024,11 +1030,13 @@
             task: jsPsych.timelineVariable('task'),
             accuracy: 'correct'
           }).count();
+          
         var SemPri_total_incorrect =
           jsPsych.data.get().filter({
             task: jsPsych.timelineVariable('task'),
             accuracy: 'incorrect'
           }).count();
+          
         var SemPri_total_unanswered =
           jsPsych.data.get().filter({
             task: jsPsych.timelineVariable('task'),
@@ -1088,13 +1096,11 @@
       type: jsPsychHtmlKeyboardResponse,
       data: { trial: jsPsych.timelineVariable('trial') },
       stimulus: function() {
-        var last_trial_accuracy =
-          jsPsych.data.getLastTrialData().values()[0].accuracy;
-        if(last_trial_accuracy == 'correct') {
+        if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'correct') {
           return '<p><green-button> &check; </green-button></p>'
-        } else if(last_trial_accuracy == 'incorrect') {
+        } else if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'incorrect') {
           return '<p><red-button> &#x2718; </red-button></p>'
-        } else if(last_trial_accuracy == 'unanswered') {
+        } else if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'unanswered') {
           return '<p><red-button> 0 </red-button></p>'
         }
       },
@@ -1220,16 +1226,19 @@
             task: 'SemPri_practice',
             accuracy: 'correct'
           }).count();
+          
         var SemPri_practice_trials_total_incorrect =
           jsPsych.data.get().filter({
             task: 'SemPri_practice',
             accuracy: 'incorrect'
           }).count();
+          
         var SemPri_practice_trials_total_unanswered =
           jsPsych.data.get().filter({
             task: 'SemPri_practice',
             accuracy: 'unanswered'
           }).count();
+          
         var SemPri_practice_trials_accuracy_rate =
           SemPri_practice_trials_total_correct /
           (SemPri_practice_trials_total_correct +
@@ -1249,10 +1258,7 @@
           var message =
             '<div><b>Results of the practice</b><br>' +
             'Your accuracy rate was ' +
-            Math.round(SemPri_practice_trials_accuracy_rate * 100) + '%' +
-            ' (' + SemPri_practice_trials_total_correct + ' correct trials, ' +
-            SemPri_practice_trials_total_incorrect + ' incorrect and ' +
-            SemPri_practice_trials_total_unanswered + ' unanswered).</div>'
+            Math.round(SemPri_practice_trials_accuracy_rate * 100) + '%.</div>'
 
           // Report any premature response attempts
 
@@ -1261,7 +1267,8 @@
             }).count() == 1) {
             var message = message +
               '<div>There was a response attempt before the lowercase word had been presented. ' +
-              'Please respond only when the lowercase word appears on the screen.</div>';
+              'Please respond only when you have read the lowercase word and decided whether ' +
+              'it is abstract or concrete.</div>';
 
           } else if(jsPsych.data.get().filter({
               premature_response_attempts: 'yes'
@@ -1271,8 +1278,9 @@
               jsPsych.data.get().filter({
                 premature_response_attempts: 'yes'
               }).count() +
-              ' response attempts before the lowercase word had been presented. ' +
-              'Please respond only when the lowercase word appears on the screen.</div>';
+              ' response attempts before the lowercase word had been presented. Please ' +
+              'respond only when you have read the lowercase word and decided whether ' +
+              'it is abstract or concrete.</div>';
           }
 
           // Display entire message
@@ -1355,18 +1363,21 @@
             practice_round: 2,
             accuracy: 'correct'
           }).count();
+          
         var SemPri_repeated_practice_trials_total_incorrect =
           jsPsych.data.get().filter({
             task: 'SemPri_practice',
             practice_round: 2,
             accuracy: 'incorrect'
           }).count();
+          
         var SemPri_repeated_practice_trials_total_unanswered =
           jsPsych.data.get().filter({
             task: 'SemPri_practice',
             practice_round: 2,
             accuracy: 'unanswered'
           }).count();
+          
         var SemPri_repeated_practice_trials_accuracy_rate =
           SemPri_repeated_practice_trials_total_correct /
           (SemPri_repeated_practice_trials_total_correct +
@@ -1385,10 +1396,7 @@
         } else {
           var message =
             '<div>The results were not so good. <br>Your accuracy rate was ' +
-            Math.round(SemPri_repeated_practice_trials_accuracy_rate * 100) + '%' +
-            ' (' + SemPri_repeated_practice_trials_total_correct + ' correct trials, ' +
-            SemPri_repeated_practice_trials_total_incorrect + ' incorrect and ' +
-            SemPri_repeated_practice_trials_total_unanswered + ' unanswered).' +'</div>'
+            Math.round(SemPri_repeated_practice_trials_accuracy_rate * 100) + '%.' +'</div>'
         }
 
         // Report any premature response attempts
@@ -1400,7 +1408,8 @@
           }).count() == 1) {
           var message = message +
             '<div>There was a response attempt before the lowercase word had been presented. ' +
-            'Please respond only when the lowercase word appears on the screen.</div>'
+            'Please respond only when you have read the lowercase word and decided whether ' +
+            'it is abstract or concrete.</div>';
 
         } else if(jsPsych.data.get().filter({
             task: 'SemPri_practice',
@@ -1414,14 +1423,15 @@
               practice_round: 2,
               premature_response_attempts: 'yes'
             }).count() +
-            ' response attempts before the lowercase word had been presented. ' +
-            'Please respond only when the lowercase word appears on the screen.</div>'
+            ' response attempts before the lowercase word had been presented. Please ' +
+            'respond only when you have read the lowercase word and decided whether ' +
+            'it is abstract or concrete.</div>';
         }
 
         // Finish message
         var message = message +
-          '<div> In the next part, no feedback will be shown after ' +
-          'your responses. Please press the space bar to begin.</div>'
+          '<div>In the next part, no feedback will be shown after your ' +
+          'responses. Please press the space bar to begin.</div>'
 
         // Display message
         return message + '<br>'

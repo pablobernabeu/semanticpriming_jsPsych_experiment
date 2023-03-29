@@ -138,13 +138,11 @@ var VisAbil_practice_trial_1_feedback = {
       trial: 1
       },
   stimulus: function() {
-    var last_trial_correct =
-      jsPsych.data.getLastTrialData().values()[0].correct;
     if(jsPsych.data.getLastTrialData().values()[0].key_press == '') {
       return '<p><red-button> 0 </red-button></p>'
-    } else if(last_trial_correct == true) {
+    } else if(jsPsych.data.getLastTrialData().values()[0].correct == true) {
       return '<p><green-button> &check; </green-button></p>'
-    } else if(last_trial_correct == false) {
+    } else if(jsPsych.data.getLastTrialData().values()[0].correct == false) {
       return '<p><red-button> &#x2718; </red-button></p>'
     }
   },
@@ -179,13 +177,11 @@ var VisAbil_practice_trial_2_feedback = {
       trial: 2
       },
   stimulus: function() {
-    var last_trial_correct =
-      jsPsych.data.getLastTrialData().values()[0].correct;
     if(jsPsych.data.getLastTrialData().values()[0].key_press == '') {
       return '<p><red-button> 0 </red-button></p>'
-    } else if(last_trial_correct == true) {
+    } else if(jsPsych.data.getLastTrialData().values()[0].correct == true) {
       return '<p><green-button> &check; </green-button></p>'
-    } else if(last_trial_correct == false) {
+    } else if(jsPsych.data.getLastTrialData().values()[0].correct == false) {
       return '<p><red-button> &#x2718; </red-button></p>'
     }
   },
@@ -344,7 +340,7 @@ var VisAbil_trial_1 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -375,7 +371,7 @@ var VisAbil_trial_2 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -406,7 +402,7 @@ var VisAbil_trial_3 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -437,7 +433,7 @@ var VisAbil_trial_4 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -468,7 +464,7 @@ var VisAbil_trial_5 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -499,7 +495,7 @@ var VisAbil_trial_6 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -530,7 +526,7 @@ var VisAbil_trial_7 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -561,7 +557,7 @@ var VisAbil_trial_8 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -592,7 +588,7 @@ var VisAbil_trial_9 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -623,7 +619,7 @@ var VisAbil_trial_10 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -654,7 +650,7 @@ var VisAbil_trial_11 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -685,7 +681,7 @@ var VisAbil_trial_12 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -716,7 +712,7 @@ var VisAbil_trial_13 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -747,7 +743,7 @@ var VisAbil_trial_14 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -778,7 +774,7 @@ var VisAbil_trial_15 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -809,7 +805,7 @@ var VisAbil_trial_16 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -840,7 +836,7 @@ var VisAbil_trial_17 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -871,7 +867,7 @@ var VisAbil_trial_18 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -902,7 +898,7 @@ var VisAbil_trial_19 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
@@ -933,7 +929,7 @@ var VisAbil_trial_20 = {
     random_movement_type: 1,
     random_orientation_type: 1,
     
-    // Bespoke data to be included in output
+    // Custom data to be included in output
     on_finish: function(data) {
       
       var VisAbil_correct_trials =
