@@ -387,12 +387,17 @@ var WorkMem_response_screen = {
         task: 'WorkMem_main',
         accuracy: 'unanswered'
       }).count();
-
-    data.accuracy_rate =
+      
+    var accuracy_rate =
       WorkMem_total_correct /
       (WorkMem_total_correct +
         WorkMem_total_incorrect +
         WorkMem_total_unanswered);
+    
+    // Transform any NA values to 0
+    if(isNaN(accuracy_rate)) var accuracy_rate = 0;
+
+    data.accuracy_rate = accuracy_rate;
         
 		response = [];  // clear the response for the next trial
 		staircaseIndex += 1;  // update the staircase index
@@ -491,16 +496,16 @@ var WorkMem_practice_debrief = {
     // Tailor message to the results
     
     // If results good, keep message short
-    if(jsPsych.data.getLastTrialData().values()[0].accuracy_rate >= .8) {
+    if(jsPsych.data.get().last(3).values()[0].accuracy_rate >= .8) {
         return '<div>Practice completed In the next part, more digits will be presented ' +
         'in each trial and faster responses will be required. Please press the space ' +
         'space bar to begin.</div>'
     
     // If results not so good, present them
     } else {
-    return '<div><b>Results of the practice</b><br>Your accuracy rate was ' +
-    Math.round(jsPsych.data.getLastTrialData().values()[0].accuracy_rate * 100) + '%.' +
-    'Please press the space bar to read the instructions again.</div>'
+      return '<div><b>Results of the practice</b><br>Your accuracy rate was ' +
+      Math.round(jsPsych.data.get().last(3).values()[0].accuracy_rate * 100) + '%.' +
+      'Please press the space bar to read the instructions again.</div>'
     }
   }
 };
@@ -513,7 +518,7 @@ var conditional_WorkMem_practice_debrief = {
       task: 'WorkMem_practice', 
       WorkMem_section: 'response'
     }).count() == WorkMem_PracticeTrials &&
-    jsPsych.data.getLastTrialData().values()[0].accuracy_rate < 1) {
+    jsPsych.data.get().last(3).values()[0].accuracy_rate < 1) {
       return true;
     } else { return false }
   },
