@@ -103,8 +103,8 @@ var startingSpan = 3;  // where we begin in terms of span
 var currentSpan;  // to reference where participants currently are
 var spanHistory = [];  // easy logging of the participant's trajectory
 var stimList;  // this is going to house the ordering of the stimuli for each trial
-var idx = 0;  // for indexing the current letter to be presented
-var exitLetters;  // for exiting the letter loop
+var idx = 0;  // for indexing the current digit to be presented
+var exitDigits;  // for exiting the digit loop
 
 const arrSum = arr => arr.reduce((a,b) => a + b, 0)  // simple variable for calculating sum of an array
 
@@ -276,13 +276,13 @@ var setup_fixation = {
   	  TrialNum = 1
   	}
   	
-  	idx = 0;  // reset the index prior to the letter presentation
-  	exitLetters = 0;  // reset the exit letter variable
+  	idx = 0;  // reset the index prior to the digit presentation
+  	exitDigits = 0;  // reset the exit digit variable
   }
 };
 
-// visual letter presentation
-var letter_WorkMem_vis = {
+// visual digit presentation
+var digit_WorkMem_vis = {
 	type: jsPsychHtmlKeyboardResponse,
 	stimulus: function(){return stimList[idx];},
 	choices: 'NO_KEYS',
@@ -290,21 +290,21 @@ var letter_WorkMem_vis = {
 	post_trial_gap: 250,
 	on_finish: function(){
 		idx += 1;  // update the index
-		// check to see if we are at the end of the letter array
+		// check to see if we are at the end of the digit array
 		if (idx == stimList.length) {
-			exitLetters = 1;
+			exitDigits = 1;
 		} else	{
-			exitLetters = 0;
+			exitDigits = 0;
 		}
 	}
 };
 
-// conditional loop of letters for the length of stimList
-var letter_proc = {
+// conditional loop of digits for the length of stimList
+var digit_proc = {
   type: jsPsychHtmlKeyboardResponse,
-	timeline: [letter_WorkMem_vis],
+	timeline: [digit_WorkMem_vis],
 	loop_function: function(){
-		if(exitLetters == 0){
+		if(exitDigits == 0){
 			return true;
 		} else {
 			return false;
@@ -366,7 +366,11 @@ var WorkMem_response_screen = {
   			console.log('incorrect');
   			staircaseChecker[staircaseIndex] = 0;
   		}
-	  } else { data.accuracy = 'unanswered' };
+	  } else { 
+	    data.accuracy = 'unanswered';
+	    console.log('unanswered');
+	    staircaseChecker[staircaseIndex] = 0;
+	    };
 
     // Overall accuracy rate so far, ranging between 0 and 1
 
@@ -398,15 +402,18 @@ var WorkMem_response_screen = {
     if(isNaN(accuracy_rate)) var accuracy_rate = 0;
 
     data.accuracy_rate = accuracy_rate;
-        
-		response = [];  // clear the response for the next trial
-		staircaseIndex += 1;  // update the staircase index
 		console.log(staircaseChecker);
 		data.span = currentSpan;
 		data.answer = response;
 		data.correct = WorkMem_correct_ans;
 		data.spanHistory = spanHistory;
 		data.maxSpan = Math.max(...spanHistory)
+		
+		// clear the response for the next trial
+		response = [];
+		
+		// update the staircase index
+		staircaseIndex += 1;
 		
 		console.log('trial = ', data.trial)
 		console.log('jsPsych.data.get().count() = ', jsPsych.data.get().count())
@@ -467,7 +474,7 @@ var WorkMem_conditional_instructional_manipulation_check = {
 // PRACTICE TRIALS
 
 var WorkMem_practice_timeline = {
-	timeline: [setup_fixation, letter_proc, 
+	timeline: [setup_fixation, digit_proc, 
 	  WorkMem_response_screen, WorkMem_feedback,
 	  staircase_assess],
 	data: {task: 'WorkMem_practice'},
@@ -505,12 +512,12 @@ var WorkMem_practice_debrief = {
     } else {
       return '<div><b>Results of the practice</b><br>Your accuracy rate was ' +
       Math.round(jsPsych.data.get().last(3).values()[0].accuracy_rate * 100) + '%.' +
-      'Please press the space bar to read the instructions again.</div>'
+      'Please press the space bar to re-read the instructions and repeat the practice.</div>'
     }
   }
 };
 
-// Show feedback on all practice if accuracy rate < 100%
+// Show feedback about all practice if accuracy rate < 100%
 var conditional_WorkMem_practice_debrief = {
   timeline: [WorkMem_practice_debrief],
   conditional_function: function() {
@@ -520,10 +527,10 @@ var conditional_WorkMem_practice_debrief = {
     }).count() == WorkMem_PracticeTrials &&
     jsPsych.data.get().last(3).values()[0].accuracy_rate < 1) {
       return true;
-    } else { return false }
-  },
+      } else { return false }
+      },
   repetitions: 1
-};
+  };
 
 // Present instructions again if accuracy rate < 100%
 var conditional_repeat_WorkMem_practice_instructions = {
@@ -531,18 +538,83 @@ var conditional_repeat_WorkMem_practice_instructions = {
   conditional_function: function() {
     if(jsPsych.data.get().filter({
       task: 'WorkMem_practice', 
-      accuracy: 1
-      }).count() < WorkMem_PracticeTrials) {
-          return true;
+      WorkMem_section: 'response'
+    }).count() == WorkMem_PracticeTrials &&
+    jsPsych.data.get().last(4).values()[0].accuracy_rate < 1) {
+      return true;
       } else { return false }
   }
 };
+
+/* Repeat practice trials if there were any premature 
+   if accuracy rate < 100%. */
+var WorkMem_repeated_practice_trials = {
+  timeline: [WorkMem_practice_timeline],
+  data: {
+    practice_round: 2
+  },
+  conditional_function: function() {
+    if(jsPsych.data.get().filter({
+      task: 'WorkMem_practice', 
+      WorkMem_section: 'response'
+    }).count() == WorkMem_PracticeTrials &&
+    jsPsych.data.get().last(5).values()[0].accuracy_rate < 1) {
+      return true;
+    } else {
+      return false
+    }
+  }
+};
+
+// Overall feedback on all practice trials
+var WorkMem_repeated_practice_debrief = {
+  type: jsPsychHtmlKeyboardResponse,
+  choices: [' '],
+  trial_duration: 40000,
+
+  stimulus: function() {
+
+    // Tailor message to the results
+    
+    // If results good, keep message short
+    if(jsPsych.data.get().last(3).values()[0].accuracy_rate >= .8) {
+        return '<div>Practice completed In the next part, more digits will be presented ' +
+        'in each trial and faster responses will be required. Please press the space ' +
+        'space bar to begin.</div>'
+    
+    // If results not so good, present them
+    } else {
+      return '<div><b>Results of the practice</b><br>Your accuracy rate was ' +
+      Math.round(jsPsych.data.get().last(3).values()[0].accuracy_rate * 100) + '%.' +
+      'Please press the space bar to read the instructions again.</div>'
+    }
+  }
+};
+
+// Show feedback about all practice if accuracy rate < 100%
+var conditional_WorkMem_repeated_practice_debrief = {
+  timeline: [WorkMem_repeated_practice_debrief],
+  conditional_function: function() {
+    if(jsPsych.data.get().filter({
+      task: 'WorkMem_practice', 
+      WorkMem_section: 'response'
+    }).count() == WorkMem_PracticeTrials &&
+    jsPsych.data.get().last(3).values()[0].accuracy_rate < 1) {
+      return true;
+      } else { return false }
+      },
+  repetitions: 1
+  };
 
 // Timeline
 var working_memory_practice = {
 	timeline: [ WorkMem_practice_instructions, 
 	  WorkMem_practice_timeline, 
-	  conditional_WorkMem_practice_debrief ]
+	  conditional_WorkMem_practice_debrief,
+	  conditional_repeat_WorkMem_practice_instructions,
+	  WorkMem_repeated_practice_trials,
+	  conditional_WorkMem_repeated_practice_debrief
+	  ]
 };
 
 
@@ -550,7 +622,7 @@ var working_memory_practice = {
 // Main trials
 
 var WorkMem_main_timeline = {
-	timeline: [ setup_fixation, letter_proc, 
+	timeline: [ setup_fixation, digit_proc, 
     WorkMem_response_screen, staircase_assess, 
     WorkMem_conditional_instructional_manipulation_check ],
 	data: {task: 'WorkMem_main'},
