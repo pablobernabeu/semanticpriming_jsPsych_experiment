@@ -129,8 +129,8 @@ var WorkMem_practice_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: 
     '<div>In the next task, you will see a sequence of digits and be asked to type ' +
-    'them in the reverse order, using your mouse, and then to confirm by pressing ' +
-    'the space bar. For example, if you saw the digits <button>1</button> ' +
+    'them in the <b>reverse order</b>, using your mouse, and then to confirm by ' +
+    'pressing the space bar. For example, if you saw the digits <button>1</button> ' +
     '<button>2</button> <button>3</button>, you would need to click on the numbers ' +
     '<button>3</button> <button>2</button> <button>1</button>. Please do the task ' +
     'solely in your head, and try to respond as accurately and fast as possible.' +
@@ -143,12 +143,13 @@ var WorkMem_practice_instructions = {
 var repeat_WorkMem_practice_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: 
-    "<div>Some responses were incorrect so let's try again. Like before, you will see " +
-    'a sequence of digits and be asked to type them back in reverse order, using your ' +
-    'mouse. For example, if you saw the digits <button>1</button> <button>2</button> ' +
-    '<button>3</button>, you would need to click on the numbers <button>3</button> ' +
-    '<button>2</button> and <button>1</button>. Please do the task solely in your ' +
-    'head, and try to respond as accurately and fast as possible.<br><br></div>',
+    "<div>Some responses were incorrect so let's try again. Like before, you will " +
+    'see a sequence of digits and be asked to type them back in <b>reverse ' +
+    'order</b>, using your mouse. For example, if you saw the digits ' +
+    '<button>1</button> <button>2</button> <button>3</button>, you would need to ' +
+    'click on the numbers <button>3</button> <button>2</button> and ' +
+    '<button>1</button>. Please do the task solely in your head, and try to ' +
+    'respond as accurately and fast as possible.<br><br></div>',
   choices: ['Click to repeat the practice'],
   trial_duration: 40000,
 };
@@ -496,7 +497,6 @@ var random_number = {
 var instructional_manipulation_check = {
   type: jsPsychHtmlKeyboardResponse,
   trial_duration: 10000,
-  data: { task: 'instructional_manipulation_check' },
   stimulus: function(data) {
     if(jsPsych.data.getLastTrialData().values()[0].random_position == 0) {
       return '<p>Performance has been low. Please enter the ' +
@@ -525,12 +525,19 @@ var instructional_manipulation_check = {
     }
   },
   on_finish: function(data) {
+    
+    // Register current task and trial number
+    data.task = jsPsych.data.get().last(3).values()[0].task;
+    data.trial = jsPsych.data.get().last(3).values()[0].trial;
+    
     // Categorise passed check
     if(data.response ==
     jsPsych.data.get().last(2).values()[0].random_number.toString().charAt(jsPsych.data.get().last(2).values()[0].random_position)) {
       data.instructional_manipulation_check = 'passed'
+      
       // Categorise failed check
       } else data.instructional_manipulation_check = 'failed';
+      
       // Terminate experiment if two instructional manipulation checks have been failed
       if(jsPsych.data.get().filter({
         instructional_manipulation_check: 'failed'
@@ -555,7 +562,6 @@ var WorkMem_conditional_instructional_manipulation_check = {
   administer instructional manipulation check. */
   conditional_function: function(data) {
     if([10, 20].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
-      jsPsych.data.getLastTrialData().values()[0].accuracy !== 1 &&
       jsPsych.data.getLastTrialData().values()[0].accuracy_rate < .6) {
       return true;
     } else {

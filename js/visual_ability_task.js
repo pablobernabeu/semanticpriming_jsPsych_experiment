@@ -876,7 +876,6 @@ var random_number = {
 var instructional_manipulation_check = {
   type: jsPsychHtmlKeyboardResponse,
   trial_duration: 10000,
-  data: { task: 'instructional_manipulation_check' },
   stimulus: function(data) {
     if(jsPsych.data.getLastTrialData().values()[0].random_position == 0) {
       return '<p>Performance has been low. Please enter the ' +
@@ -905,12 +904,19 @@ var instructional_manipulation_check = {
     }
   },
   on_finish: function(data) {
+        
+    // Register current task and trial number
+    data.task = jsPsych.data.get().last(3).values()[0].task;
+    data.trial = jsPsych.data.get().last(3).values()[0].trial;
+    
     // Categorise passed check
     if(data.response ==
     jsPsych.data.get().last(2).values()[0].random_number.toString().charAt(jsPsych.data.get().last(2).values()[0].random_position)) {
       data.instructional_manipulation_check = 'passed'
+      
       // Categorise failed check
       } else data.instructional_manipulation_check = 'failed';
+      
       // Terminate experiment if two instructional manipulation checks have been failed
       if(jsPsych.data.get().filter({
         instructional_manipulation_check: 'failed'
@@ -933,8 +939,7 @@ var VisAbil_conditional_instructional_manipulation_check = {
   /* On selected trials, if last trial was incorrect, and average accuracy < .6,
   administer instructional manipulation check. */
   conditional_function: function(data) {
-    if(jsPsych.data.getLastTrialData().values()[0].correct == false && 
-    jsPsych.data.getLastTrialData().values()[0].accuracy_rate < .6) {
+    if(jsPsych.data.getLastTrialData().values()[0].accuracy_rate < .6) {
       return true;
     } else {
       return false

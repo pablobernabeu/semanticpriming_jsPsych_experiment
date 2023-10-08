@@ -158,7 +158,6 @@
       type: jsPsychHtmlKeyboardResponse,
       trial_duration: 10000,
       choices: 'ALL_KEYS',
-      data: { task: 'instructional_manipulation_check' },
       stimulus: function(data) {
         if(jsPsych.data.getLastTrialData().values()[0].random_position == 0) {
           return '<p><b>Attention check!</b> Please enter the ' +
@@ -187,12 +186,19 @@
         }
       },
       on_finish: function(data) {
+        
+        // Register current task and trial number
+        data.task = jsPsych.data.get().last(3).values()[0].task;
+        data.trial = jsPsych.data.get().last(3).values()[0].trial;
+        
         // Categorise passed check
         if(data.response ==
         jsPsych.data.get().last(2).values()[0].random_number.toString().charAt(jsPsych.data.get().last(2).values()[0].random_position)) {
           data.instructional_manipulation_check = 'passed'
+          
           // Categorise failed check
           } else data.instructional_manipulation_check = 'failed';
+          
           // Terminate experiment if two instructional manipulation checks have been failed
           if(jsPsych.data.get().filter({
             instructional_manipulation_check: 'failed'
@@ -205,8 +211,6 @@
         }
       }
     };
-    
-    
 
 
     /**********************************************/
@@ -409,8 +413,7 @@
       /* On selected trials, if last trial was incorrect, and average accuracy < .8,
       administer instructional manipulation check. */
       conditional_function: function(data) {
-        if([10, 20, 40, 60, 80].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
-          jsPsych.data.getLastTrialData().values()[0].accuracy != 'correct' &&
+        if([20, 40, 60, 80].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
           jsPsych.data.getLastTrialData().values()[0].accuracy_rate < .8) {
           return true;
         } else {
@@ -586,18 +589,18 @@
 
       on_finish: function(data) {
         if(jsPsych.data.get().filter({
-              task: 'ReadAbil_practice',
-              accuracy: 'unanswered'
-              }).count() +
-              jsPsych.data.get().filter({
-                task: 'ReadAbil_practice',
-                accuracy: 'incorrect'
-                }).count() > 1) {
-          jsPsych.endExperiment('<div>Unfortunately, the experiment cannot continue because ' +
-          'two comprehension checks have been failed. Please return to Prolific and click ' +
-          '<button>Stop without Completing</button>. ' +
-          '<a href="https://app.prolific.co/submissions/complete?cc=CBXBRKZI">Click here to ' +
-          'return to <b>Prolific</b></a>. Thank you very much.</div>', data)
+          task: 'ReadAbil_practice',
+          accuracy: 'unanswered'
+          }).count() +
+          jsPsych.data.get().filter({
+            task: 'ReadAbil_practice',
+            accuracy: 'incorrect'
+            }).count() > 1) {
+              jsPsych.endExperiment('<div>Unfortunately, the experiment cannot continue because ' +
+              'two comprehension checks have been failed. Please return to Prolific and click ' +
+              '<button>Stop without Completing</button>. ' +
+              '<a href="https://app.prolific.co/submissions/complete?cc=CBXBRKZI">Click here to ' +
+              'return to <b>Prolific</b></a>. Thank you very much.</div>', data)
         }
       }
     };
@@ -628,10 +631,10 @@
             premature_response_attempts: 'yes'
           }).count() > 0 ||
           jsPsych.data.get().last(4).values()[0].accuracy_rate < .8) {
-          return true;
-        } else {
-          return false
-        }
+            return true;
+            } else {
+              return false
+              }
       }
     };
     // Push to general timeline
@@ -855,16 +858,16 @@
       type: jsPsychHtmlKeyboardResponse,
       prompt: '<p>Press the space bar to begin.</p>',
       choices: [' '],
-      trial_duration: 40000,
+      trial_duration: 70000,
       stimulus: [
         '<div>Each screen will first show a word in upper case very briefly, and afterwards, ' +
         'a word in lower case. Please read both words. When you see the lowercase word, ' +
         'please classify it as abstract or concrete. Abstract concepts are those that we ' +
         'cannot normally experience physically, whereas concrete concepts are those that ' +
-        'we can experience more directly. Press <button>F</button> if the lowercase word ' +
-        'is primarily abstract (for instance, <i>wait</i>), or press <button>J</button> if it ' +
-        'is primarily concrete (for instance, <i>water</i>). Please try to respond as accurately ' +
-        'and fast as possible. Next, you can practise with some trials. Correct ' +
+        'we can experience more directly.<br>Press <button>F</button> if the lowercase word ' +
+        'is primarily abstract (for instance, <i>wait</i>), or press <button>J</button> if ' +
+        'it is primarily concrete (for instance, <i>water</i>). Please try to respond as ' +
+        'accurately and fast as possible. Next, you can practise with some trials. Correct ' +
         'responses will be indicated with <green-button> &check; </green-button>; ' +
         'incorrect responses with <red-button> &#x2718; </red-button>; and unanswered ' +
         'trials with <red-button> 0 </red-button>.<br></div>'
@@ -1071,8 +1074,7 @@
       /* On selected trials, if last trial was incorrect, and average accuracy < .8,
       administer instructional manipulation check. */
       conditional_function: function(data) {
-        if([10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
-          jsPsych.data.getLastTrialData().values()[0].accuracy != 'correct' &&
+        if([20, 40, 60, 80, 100, 120, 140, 160, 180, 200].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
           jsPsych.data.getLastTrialData().values()[0].accuracy_rate < .65) {
           return true;
         } else {
