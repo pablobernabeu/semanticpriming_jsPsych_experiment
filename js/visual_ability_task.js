@@ -948,7 +948,6 @@ var VisAbil_conditional_instructional_manipulation_check = {
 };
 
 
-
 // Assemble main trials timeline
 var VisAbil_main_timeline = {
   timeline: [ VisAbil_trial_1, VisAbil_trial_2,

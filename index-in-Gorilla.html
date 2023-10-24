@@ -1,72 +1,57 @@
-<!DOCTYPE html>
-<html>
-
-  <head>
-
-    <!-- Load in jsPsych library and plugins -->
-    <script src='https://unpkg.com/jspsych@7.3.3'></script>
-    <script src='https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2'></script>
-    <script src='https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2'></script>
-    <script src='https://unpkg.com/@jspsych/plugin-call-function@1.1.2'></script>
-    <script src='https://unpkg.com/@jspsych-contrib/plugin-rok@1.1.1'></script>
-
-    <!-- Load in jquery library -->
-    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js'></script>
-
-    <!-- Load in semantic priming stimuli (tag: 'SemPri') -->
-    <script src='js/semanticpriming_practice_stimuli.js'></script>
-    <script src='js/semanticpriming_main_stimuli_1.js'></script>
-    <script src='js/semanticpriming_main_stimuli_2.js'></script>
-
-    <!-- Load in reading ability stimuli (tag: 'ReadAbil') -->
-    <script src='js/reading_ability_stimuli.js'></script>
-
-    <!-- Load in other tasks: working memory (tag: 'WorkMem') 
-    and visual ability (tag: 'VisAbil') -->
-    <script src='js/working_memory_task.js'></script>
-    <script src='js/visual_ability_task.js'></script>
-
-    <!-- Load in CSS -->
-    <link rel='stylesheet' href='https://unpkg.com/jspsych@7.3.3/css/jspsych.css' />
-    <link rel='stylesheet' href='style.css' />
-
-  </head>
 
 
-  <!-- Beginning of the script that contains the core of the experiment -->
-  <script>
-  
+import gorilla = require("gorilla/gorilla");
+
+// jsPsych library and plugins are loaded in the Head using CDN links.
+// Plugins include html-keyboard-response and html-button-response.
+
+const initJsPsych = window['initJsPsych'];
+const jsPsychHtmlKeyboardResponse = window['jsPsychHtmlKeyboardResponse']
+const jsPsychHtmlButtonResponse = window['jsPsychHtmlButtonResponse']
+const jsPsychCallFunction = window['jsPsychCallFunction']
+const jsPsychRok = window['jsPsychRok']
+const ReadAbil_stimuli = window['ReadAbil_stimuli']
+
+gorilla.ready(function(){
+    
     // Prevent backing and refreshing (as in https://github.com/nivlab/jspsych-demos/blob/main/tasks/vocabulary/experiment.html)
-    function verify_unload(e) {
+    function verify_unload(e){
       e.preventDefault();
       (e || window.event).returnValue = null;
       return null;
     };
     window.addEventListener('beforeunload', verify_unload);
 
-    // Initialise experiment
+	 /* Initialise the experiment */
     var jsPsych = initJsPsych({
+        
+      display_element: $('body')[0],
+      
+      on_data_update: function(data){
+          gorilla.metric(data);
+      },
+      
       on_finish: function() {
 
-        // Remove requirement to verify redirect
-        window.removeEventListener('beforeunload', verify_unload);
+      // Remove requirement to verify redirect
+      window.removeEventListener('beforeunload', verify_unload);
 
-        // Add interactions to the data variable
-        var interaction_data = jsPsych.data.getInteractionData();
-        jsPsych.data.get().addToLast({interactions: interaction_data.json()});
-
+      // Add interactions to the data variable
+      var interaction_data = jsPsych.data.getInteractionData();
+      jsPsych.data.get().addToLast({interactions: interaction_data.json()});
+      
         jsPsych.data.displayData();
         jsPsych.data.get().csv();
       },
       
-      /* Set 100 ms as the minimum time between stimulus onset and 
-      response to reduce the number of invalid trials. */
+      /* Set 100 ms as the minimum time between stimulus onset 
+      and response to reduce the number of invalid trials. */
       minimum_valid_rt: 100
     });
-
-    /* Create empty timeline object, which will be sequentially 
-    filled in using language_vision_SemPri_TIMELINE.push() */
-    var language_vision_SemPri_TIMELINE = [];
+    
+	/* Create empty timeline object, which will be sequentially 
+	filled in using language_vision_SemPri_TIMELINE.push() */
+    var language_vision_SemPri_TIMELINE: any[] = [];
 
     // Assign random ID to participant, and record date and time
     jsPsych.data.addProperties({
@@ -764,32 +749,32 @@
     Two preparatory steps are performed before running the loop. */
 
     // 1. Initialise ReadAbil_STIMULI array
-    const ReadAbil_STIMULI = [];
+    ReadAbil_STIMULI = [];
 
     // 2. Randomise trial order
 
     var trial_order =
       Array.from({
-        length: ReadAbil_stimuli.length
+        length: window['ReadAbil_stimuli'].length
       }, (v, k) => k * 1);
 
     var randomised_trial_order =
       jsPsych.randomization.sampleWithoutReplacement(trial_order,
-        ReadAbil_stimuli.length);
+        window['ReadAbil_stimuli'].length);
 
     // 3. Run loop
-    for (let i of randomised_trial_order) {
+    for (const i of randomised_trial_order) {
       ReadAbil_STIMULI.push({
         task: 'ReadAbil',
-        stim: ReadAbil_stimuli[i].stim,
-        corr_rsp: ReadAbil_stimuli[i].corr_rsp
+        stim: window['ReadAbil_stimuli'][i].stim,
+        corr_rsp: window['ReadAbil_stimuli'][i].corr_rsp
       })
     }
 
     /* Create trial numbers iteratively. Important: the names of three variables 
-    used below ('trial', 'stim', 'corr_rsp') were set in the for loops above. */
+    used below ('prime', 'target', 'corr_rsp') were set in the for loops above. */
 
-    const final_ReadAbil_STIMULI = [];
+    var temp_ReadAbil_STIMULI = [];
 
     // 1. Create function to create iterable range
     const Range = (start, end) => ({
@@ -799,8 +784,8 @@
       }
     })
 
-    for (let i of Range(0, ReadAbil_STIMULI.length)) {
-      final_ReadAbil_STIMULI.push({
+    for (const i of Range(0, ReadAbil_STIMULI.length)) {
+      temp_ReadAbil_STIMULI.push({
         task: 'ReadAbil',
         trial: i + 1, // 1 added to override the default start from 0
         stim: ReadAbil_STIMULI[i].stim,
@@ -808,7 +793,7 @@
       })
     }
 
-    var ReadAbil_STIMULI = final_ReadAbil_STIMULI;
+    var ReadAbil_STIMULI = temp_ReadAbil_STIMULI;
 
 
     /* Assemble main trials timeline using some of the 
@@ -833,7 +818,7 @@
     /********************************************/
 
     // Push task to general timeline
-    language_vision_SemPri_TIMELINE.push(working_memory_task); // from working_memory_task.js
+    language_vision_SemPri_TIMELINE.push(window['working_memory_task']);
 
     // Transition to next task
     language_vision_SemPri_TIMELINE.push(break_between_tasks);
@@ -1128,7 +1113,7 @@
 
     // Create range of SOAs
     ISIntervals_practice_trials =
-      makeArr(60, 1200, SemPri_practice_stimuli.length);
+      makeArr(60, 1200, window['SemPri_practice_stimuli'].length);
 
     // Randomise SOAs (hence the .5 below)
     ISIntervals_practice_trials =
@@ -1140,7 +1125,7 @@
     repetition of the practice trials, which happens when 
     the first round is insufficient. */
     var ISIntervals_practice_trials =
-      new Array(SemPri_practice_stimuli.length).fill(ISIntervals_practice_trials).flat();
+      new Array(window['SemPri_practice_stimuli'].length).fill(ISIntervals_practice_trials).flat();
 
 
     /* Create timeline variable iteratively over trials using a for-of loop. 
@@ -1153,20 +1138,20 @@
 
     var trial_order =
       Array.from({
-        length: SemPri_practice_stimuli.length
+        length: window['SemPri_practice_stimuli'].length
       }, (v, k) => k * 1);
 
     var randomised_trial_order =
       jsPsych.randomization.sampleWithoutReplacement(trial_order,
-        SemPri_practice_stimuli.length);
+        window['SemPri_practice_stimuli'].length);
 
     // 3. Run loop. Names of some variables are expanded.
-    for (let i of randomised_trial_order) {
+    for (const i of randomised_trial_order) {
       SemPri_practice_STIMULI.push({
         task: 'SemPri_practice',
-        prime: SemPri_practice_stimuli[i].PW, // name changed to 'prime'
-        target: SemPri_practice_stimuli[i].TW, // name changed to 'target'
-        corr_rsp: SemPri_practice_stimuli[i].CR, // name changed to 'corr_rsp', correct response
+        prime: window['SemPri_practice_stimuli'][i].PW, // name changed to 'prime'
+        target: window['SemPri_practice_stimuli'][i].TW, // name changed to 'target'
+        corr_rsp: window['SemPri_practice_stimuli'][i].CR, // name changed to 'corr_rsp', correct response
         ISInterval: ISIntervals_practice_trials[i]
       })
     }
@@ -1178,7 +1163,7 @@
 
     // 1. Use `range` function created above
 
-    for (let i of Range(0, SemPri_practice_STIMULI.length)) {
+    for (const i of Range(0, SemPri_practice_STIMULI.length)) {
       temp_SemPri_practice_STIMULI.push({
         task: 'SemPri_practice',
         trial: i + 1, // 1 added to override the default start from 0
@@ -1456,11 +1441,11 @@
 
     /* Merge the two variables containing the main stimuli, which 
     were separated due to the 100 MB limit of files on GitHub. */
-    var SemPri_main_stimuli = SemPri_main_stimuli_1.concat(SemPri_main_stimuli_2);
+    var SemPri_main_stimuli = window['SemPri_main_stimuli_1'].concat(window['SemPri_main_stimuli_2']);
 
     // Delete original variables
-    // var SemPri_main_stimuli_1 = null;
-    // var SemPri_main_stimuli_2 = null;
+    // var window['SemPri_main_stimuli_1'] = null;
+    // var window['SemPri_main_stimuli_2'] = null;
 
     // Randomly select a stimulus list for the current participant
 
@@ -1576,7 +1561,7 @@
 
     // 3. Run loops to create Block 1 and Block 2 trials. Names of some variables are expanded.
 
-    for (let i of randomised_Block1_trial_order) {
+    for (const i of randomised_Block1_trial_order) {
       SemPri_Block1_STIMULI.push({
         task: 'SemPri_main',
         prime: SemPri_Block1_stimuli[i].PW, // name changed to 'prime'
@@ -1586,7 +1571,7 @@
       })
     }
 
-    for (let i of randomised_Block2_trial_order) {
+    for (const i of randomised_Block2_trial_order) {
       SemPri_Block2_STIMULI.push({
         task: 'SemPri_main',
         prime: SemPri_Block2_stimuli[i].PW, // name changed to 'prime'
@@ -1610,7 +1595,7 @@
 
     var temp_SemPri_Block1_STIMULI = [];
 
-    for (let i of Range(0, SemPri_Block1_STIMULI.length)) {
+    for (const i of Range(0, SemPri_Block1_STIMULI.length)) {
       temp_SemPri_Block1_STIMULI.push({
         task: 'SemPri_main',
         trial: i + 1, // 1 added to override the default beginning from 0
@@ -1715,7 +1700,7 @@
     increase perceptual simulation (Pecher et al., 1998; Yee et al., 2012). */
 
     // Push task to general timeline
-    language_vision_SemPri_TIMELINE.push(VisAbil_timeline);
+    language_vision_SemPri_TIMELINE.push(window['VisAbil_timeline']);
 
 
 
@@ -1740,8 +1725,6 @@
     /********************************************/
 
     jsPsych.run(language_vision_SemPri_TIMELINE);
-
-  </script>
-
-</html>
+    
+})
 
