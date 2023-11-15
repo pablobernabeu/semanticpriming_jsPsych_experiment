@@ -272,8 +272,7 @@ var WorkMem_response_screen = {
   // Custom data to be included in output
 	on_finish: function(data){
 	  
-	  /* Save trial number, subtracting 1 because 
-	  otherwise the counter would start from 2. */
+	  // Save trial number
     data.trial = TrialNum;
     
     // Accuracy
