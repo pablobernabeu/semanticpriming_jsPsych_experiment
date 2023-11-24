@@ -82,7 +82,7 @@
     function makeArr(startValue, stopValue, cardinality) {
       var arr = [];
       var step = (stopValue - startValue) / (cardinality - 1);
-      for (var i = 0; i < cardinality; i++) {
+      for(var i = 0; i < cardinality; i++) {
         arr.push(startValue + (step * i));
       }
       return arr;
@@ -240,6 +240,51 @@
     `ReadAbil_practice_stimuli`, whereas the main block uses 
     `ReadAbil_main_STIMULI`.
     ***/
+    
+    
+    // MAIN TRIALS
+    
+    /* Create timeline variable iteratively over trials using a for-of loop. 
+    Two preparatory steps are performed before running the loop. */
+    
+    // 1. Initialise ReadAbil_STIMULI array
+    const ReadAbil_STIMULI = [];
+    
+    // 2. Randomise trial order
+    
+    var trial_order =
+      Array.from({
+        length: ReadAbil_stimuli.length
+      }, (v, k) => k * 1);
+    
+    var randomised_trial_order = trial_order;
+    
+    // 3. Run loop
+    for (const i of randomised_trial_order) {
+      ReadAbil_STIMULI.push({
+        task: 'ReadAbil',
+        stim: ReadAbil_stimuli[i].stim,
+        corr_rsp: ReadAbil_stimuli[i].corr_rsp,
+        ReadAbil_part: ReadAbil_stimuli[i].ReadAbil_part,
+        ReadAbil_trial: ReadAbil_stimuli[i].ReadAbil_trial
+      })
+    }
+    
+    // Create trial numbers iteratively
+    
+    var final_ReadAbil_STIMULI = [];
+    
+    for (const i of Array.from({length:ReadAbil_STIMULI.length},(v,k)=>k)) {
+      final_ReadAbil_STIMULI.push({
+        task: 'ReadAbil',
+        trial: i + 1, // 1 added to override the default start from 0
+        stim: ReadAbil_STIMULI[i].stim,
+        corr_rsp: ReadAbil_STIMULI[i].corr_rsp, // correct response
+        ReadAbil_part: ReadAbil_STIMULI[i].ReadAbil_part,
+        ReadAbil_trial: ReadAbil_STIMULI[i].ReadAbil_trial
+      })
+    };
+    
 
     var ReadAbil_instructions = {
       type: jsPsychHtmlKeyboardResponse,
@@ -329,7 +374,7 @@
       
       stimulus: function() {
         
-        // In practice section, present instructions above prime word
+        // In practice section, present instructions above stimulus word
         if(jsPsych.timelineVariable('task') == 'ReadAbil_practice') {
           return '<div><b>Reminder:</b> press <button>F</button> if the letters below ' +
             'form a real word (for instance, <i>flask</i>) or press <button>J</button> ' +
@@ -809,7 +854,7 @@
       timeline: [ ReadAbil_fixation, stim_100ms, stim,
         ReadAbil_conditional_instructional_manipulation_check,
         ReadAbil_intertrial_interval ],
-      timeline_variables: ReadAbil_stimuli,
+      timeline_variables: final_ReadAbil_STIMULI,
       randomize_order: true
     };
     // Push to general timeline
@@ -1143,16 +1188,14 @@
     // 2. Randomise trial order
 
     var trial_order =
-      Array.from({
-        length: SemPri_practice_stimuli.length
-      }, (v, k) => k * 1);
+      Array.from({length: SemPri_practice_stimuli.length}, (v, k) => k);
 
     var randomised_trial_order =
       jsPsych.randomization.sampleWithoutReplacement(trial_order,
         SemPri_practice_stimuli.length);
 
     // 3. Run loop. Names of some variables are expanded.
-    for (let i of randomised_trial_order) {
+    for(const i of randomised_trial_order) {
       SemPri_practice_STIMULI.push({
         task: 'SemPri_practice',
         prime: SemPri_practice_stimuli[i].PW, // name changed to 'prime'
@@ -1165,20 +1208,12 @@
     /* Create trial numbers iteratively. Important: the names of three variables 
     used below ('prime', 'target', 'corr_rsp') were set in the for loops above. */
 
-    // 1. Create function to create iterable range
-    const Range = (start, end) => ({
-      *[Symbol.iterator]() {
-        while (start < end)
-          yield start++;
-      }
-    })
+    // Use `range` function created above
 
-    // 2. Use `range` function created above
+    var final_SemPri_practice_STIMULI = [];
 
-    var temp_SemPri_practice_STIMULI = [];
-
-    for (let i of Range(0, SemPri_practice_STIMULI.length)) {
-      temp_SemPri_practice_STIMULI.push({
+    for(const i of Array.from({length:SemPri_practice_STIMULI.length},(v,k)=>k)) {
+      final_SemPri_practice_STIMULI.push({
         task: 'SemPri_practice',
         trial: i + 1, // 1 added to override the default start from 0
         prime: SemPri_practice_STIMULI[i].prime, // prime word
@@ -1188,8 +1223,6 @@
       })
     }
 
-    var SemPri_practice_STIMULI = temp_SemPri_practice_STIMULI;
-
 
     /* Assemble practice trials timeline using some of the components 
     created near the top of this script. */
@@ -1197,7 +1230,7 @@
     var SemPri_practice_timeline = {
       timeline: [ SemPri_fixation, prime, ISInterval, target_100ms, 
         target, SemPri_feedback, SemPri_intertrial_interval ],
-      timeline_variables: SemPri_practice_STIMULI
+      timeline_variables: final_SemPri_practice_STIMULI
     };
     // Add to general timeline
     language_vision_SemPri_TIMELINE.push(SemPri_practice_timeline);
@@ -1556,18 +1589,14 @@
     // 2. Randomise trial order in each block
 
     var Block1_trial_order =
-      Array.from({
-        length: number_of_SemPri_Block1_trials
-      }, (v, k) => k * 1);
+      Array.from({length: number_of_SemPri_Block1_trials}, (v, k) => k);
 
     var randomised_Block1_trial_order =
       jsPsych.randomization.sampleWithoutReplacement(Block1_trial_order,
         number_of_SemPri_Block1_trials);
 
     var Block2_trial_order =
-      Array.from({
-        length: number_of_SemPri_Block2_trials
-      }, (v, k) => k * 1);
+      Array.from({length: number_of_SemPri_Block2_trials}, (v, k) => k);
 
     var randomised_Block2_trial_order =
       jsPsych.randomization.sampleWithoutReplacement(Block2_trial_order,
@@ -1575,7 +1604,7 @@
 
     // 3. Run loops to create Block 1 and Block 2 trials. Names of some variables are expanded.
 
-    for (let i of randomised_Block1_trial_order) {
+    for(const i of randomised_Block1_trial_order) {
       SemPri_Block1_STIMULI.push({
         task: 'SemPri_main',
         prime: SemPri_Block1_stimuli[i].PW, // name changed to 'prime'
@@ -1585,7 +1614,7 @@
       })
     }
 
-    for (let i of randomised_Block2_trial_order) {
+    for(const i of randomised_Block2_trial_order) {
       SemPri_Block2_STIMULI.push({
         task: 'SemPri_main',
         prime: SemPri_Block2_stimuli[i].PW, // name changed to 'prime'
@@ -1607,10 +1636,10 @@
 
     // Create trial numbers for Block 1
 
-    var temp_SemPri_Block1_STIMULI = [];
+    var final_SemPri_Block1_STIMULI = [];
 
-    for (let i of Range(0, SemPri_Block1_STIMULI.length)) {
-      temp_SemPri_Block1_STIMULI.push({
+    for(const i of Array.from({length:SemPri_Block1_STIMULI.length},(v,k)=>k)) {
+      final_SemPri_Block1_STIMULI.push({
         task: 'SemPri_main',
         trial: i + 1, // 1 added to override the default beginning from 0
         prime: SemPri_Block1_STIMULI[i].prime, // prime word
@@ -1620,16 +1649,13 @@
       })
     }
 
-    var SemPri_Block1_STIMULI = temp_SemPri_Block1_STIMULI;
-
 
     // Create trial numbers for Block 2
 
-    var temp_SemPri_Block2_STIMULI = [];
+    var final_SemPri_Block2_STIMULI = [];
 
-    for (const i of
-        Range(0, SemPri_Block2_STIMULI.length)) {
-      temp_SemPri_Block2_STIMULI.push({
+    for(const i of Array.from({length:SemPri_Block2_STIMULI.length},(v,k)=>k)) {
+      final_SemPri_Block2_STIMULI.push({
         task: 'SemPri_main',
         trial: (i + 1 + // 1 added to override the default beginning from 0
           SemPri_Block1_STIMULI.length), // add number of Block 1 trials to count continuously across blocks
@@ -1639,9 +1665,6 @@
         ISInterval: SemPri_Block2_STIMULI[i].ISInterval
       })
     }
-
-    var SemPri_Block2_STIMULI = temp_SemPri_Block2_STIMULI;
-
 
 
     /*********************************************
@@ -1657,7 +1680,7 @@
       timeline: [ SemPri_fixation, prime, ISInterval, target_100ms, 
       target, SemPri_conditional_instructional_manipulation_check, 
       SemPri_intertrial_interval ],
-      timeline_variables: SemPri_Block1_STIMULI
+      timeline_variables: final_SemPri_Block1_STIMULI
     };
     // Add to general timeline
     language_vision_SemPri_TIMELINE.push(SemPri_Block1_timeline);
@@ -1696,7 +1719,7 @@
       timeline: [ SemPri_fixation, prime, ISInterval, target_100ms,
       target, SemPri_conditional_instructional_manipulation_check, 
       SemPri_intertrial_interval ],
-      timeline_variables: SemPri_Block2_STIMULI
+      timeline_variables: final_SemPri_Block1_STIMULI
     };
     // Add to general timeline
     language_vision_SemPri_TIMELINE.push(SemPri_Block2_timeline);
