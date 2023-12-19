@@ -554,14 +554,14 @@ var instructional_manipulation_check = {
 var WorkMem_conditional_instructional_manipulation_check = {
   timeline: [random_number, instructional_manipulation_check],
   on_timeline_start: function(data) {
-    console.log(jsPsych.data.getLastTrialData().values()[0].accuracy_rate);
+    console.log(jsPsych.data.getLastTrialData().values()[0].main_accuracy_rate);
     console.log(jsPsych.data.getLastTrialData().values()[0].trial)
   },
   /* On selected trials, if last trial was incorrect, and average accuracy < .8,
   administer instructional manipulation check. */
   conditional_function: function(data) {
-    if([10, 20].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
-      jsPsych.data.getLastTrialData().values()[0].accuracy_rate < .6) {
+    if([7, 12].includes(jsPsych.data.getLastTrialData().values()[0].trial) &&
+      jsPsych.data.getLastTrialData().values()[0].main_accuracy_rate < .6) {
       return true;
     } else {
       return false

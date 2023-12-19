@@ -240,51 +240,6 @@
     `ReadAbil_practice_stimuli`, whereas the main block uses 
     `ReadAbil_main_STIMULI`.
     ***/
-    
-    
-    // MAIN TRIALS
-    
-    /* Create timeline variable iteratively over trials using a for-of loop. 
-    Two preparatory steps are performed before running the loop. */
-    
-    // 1. Initialise ReadAbil_STIMULI array
-    const ReadAbil_STIMULI = [];
-    
-    // 2. Randomise trial order
-    
-    var trial_order =
-      Array.from({
-        length: ReadAbil_stimuli.length
-      }, (v, k) => k * 1);
-    
-    var randomised_trial_order = trial_order;
-    
-    // 3. Run loop
-    for (const i of randomised_trial_order) {
-      ReadAbil_STIMULI.push({
-        task: 'ReadAbil',
-        stim: ReadAbil_stimuli[i].stim,
-        corr_rsp: ReadAbil_stimuli[i].corr_rsp,
-        ReadAbil_part: ReadAbil_stimuli[i].ReadAbil_part,
-        ReadAbil_trial: ReadAbil_stimuli[i].ReadAbil_trial
-      })
-    }
-    
-    // Create trial numbers iteratively
-    
-    var final_ReadAbil_STIMULI = [];
-    
-    for (const i of Array.from({length:ReadAbil_STIMULI.length},(v,k)=>k)) {
-      final_ReadAbil_STIMULI.push({
-        task: 'ReadAbil',
-        trial: i + 1, // 1 added to override the default start from 0
-        stim: ReadAbil_STIMULI[i].stim,
-        corr_rsp: ReadAbil_STIMULI[i].corr_rsp, // correct response
-        ReadAbil_part: ReadAbil_STIMULI[i].ReadAbil_part,
-        ReadAbil_trial: ReadAbil_STIMULI[i].ReadAbil_trial
-      })
-    };
-    
 
     var ReadAbil_instructions = {
       type: jsPsychHtmlKeyboardResponse,
@@ -300,7 +255,7 @@
       ]
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(ReadAbil_instructions);
+//    language_vision_SemPri_TIMELINE.push(ReadAbil_instructions);
 
     // Fixation cross
     var ReadAbil_fixation = {
@@ -529,16 +484,8 @@
       css_classes: ['stimulus'],
       // Custom data to be included in output
       on_finish: function(data) {
-    	  
-    	  // Save trial number
+    	  // trial number
         data.trial = TrialNum;
-        
-        // Reset trial number at the end of the practice
-        if(jsPsych.data.get().last(2).values()[0].task == 'ReadAbil_practice' && 
-            jsPsych.data.get().last(2).values()[0].trial == 2) {
-          console.log('reset trial number');
-          var TrialNum = 0
-        }
       }
     };
 
@@ -573,10 +520,15 @@
     var ReadAbil_practice_timeline = {
       timeline: [ ReadAbil_fixation, stim_100ms, stim,
         ReadAbil_feedback, ReadAbil_intertrial_interval ],
-      timeline_variables: ReadAbil_practice_stimuli
+      timeline_variables: ReadAbil_practice_stimuli,
+      randomize_order: true,
+      // restart trial count at the beginning of this timeline
+      on_timeline_start: function() {
+        TrialNum = 0
+      }
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(ReadAbil_practice_timeline);
+//    language_vision_SemPri_TIMELINE.push(ReadAbil_practice_timeline);
 
     // Overall feedback on all the initial practice trials
     var ReadAbil_practice_debrief = {
@@ -694,7 +646,7 @@
       }
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(ReadAbil_practice_debrief);
+//    language_vision_SemPri_TIMELINE.push(ReadAbil_practice_debrief);
 
     // Prepare repeated instructions
     var repeat_ReadAbil_instructions = {
@@ -727,7 +679,7 @@
       }
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(conditional_repeat_ReadAbil_instructions);
+//    language_vision_SemPri_TIMELINE.push(conditional_repeat_ReadAbil_instructions);
 
     /* Repeat practice trials if there were any premature 
     response attempts or if accuracy rate < 65%. */
@@ -748,7 +700,7 @@
       }
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(ReadAbil_repeated_practice_trials);
+//    language_vision_SemPri_TIMELINE.push(ReadAbil_repeated_practice_trials);
 
     // Overall feedback on all the repeated practice trials
     var ReadAbil_repeated_practice_debrief = {
@@ -844,7 +796,7 @@
       repetitions: 1
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(conditional_ReadAbil_repeated_practice_debrief);
+//    language_vision_SemPri_TIMELINE.push(conditional_ReadAbil_repeated_practice_debrief);
     
 
     /* Assemble main trials timeline using some of the 
@@ -854,14 +806,18 @@
       timeline: [ ReadAbil_fixation, stim_100ms, stim,
         ReadAbil_conditional_instructional_manipulation_check,
         ReadAbil_intertrial_interval ],
-      timeline_variables: final_ReadAbil_STIMULI,
-      randomize_order: true
+      timeline_variables: ReadAbil_stimuli,
+      randomize_order: true,
+      // restart trial count at the beginning of this timeline
+      on_timeline_start: function() {
+        TrialNum = 0
+      }
     };
     // Push to general timeline
-    language_vision_SemPri_TIMELINE.push(ReadAbil_timeline);
+//    language_vision_SemPri_TIMELINE.push(ReadAbil_timeline);
 
     // Transition to next task
-    language_vision_SemPri_TIMELINE.push(break_between_tasks);
+//    language_vision_SemPri_TIMELINE.push(break_between_tasks);
 
 
 
@@ -870,10 +826,10 @@
     /********************************************/
 
     // Push task to general timeline
-    language_vision_SemPri_TIMELINE.push(working_memory_task); // from working_memory_task.js
+//    language_vision_SemPri_TIMELINE.push(working_memory_task); // from working_memory_task.js
 
     // Transition to next task
-    language_vision_SemPri_TIMELINE.push(break_between_tasks);
+//    language_vision_SemPri_TIMELINE.push(break_between_tasks);
 
 
 
@@ -925,14 +881,19 @@
         // Set fixations with a varying duration to boost participants' attention
         return jsPsych.randomization.sampleWithoutReplacement([400, 450, 500, 550, 600], 1)[0];
       },
-      data: { trial: jsPsych.timelineVariable('trial') },
       css_classes: ['stimulus'],
       // Custom data to be included in output
       on_finish: function(data) {
+        
+      	// Adjust trial number
+      	TrialNum += 1
+        
+    	  // Save trial number
+        data.trial = TrialNum;
+        
         // Track progress in the console
         console.log(
-          'Trial ' + jsPsych.data.getLastTrialData().values()[0].trial +
-          ', Minute ' +
+          'Trial ' + TrialNum + ', Minute ' +
           Math.round(jsPsych.data.getLastTrialData().values()[0].time_elapsed / 60000)
         );
         // Log premature response attempts by writing 1
@@ -951,10 +912,13 @@
       choices: ['f', 'j'],
       response_ends_trial: false,
       trial_duration: 100,
-      data: { trial: jsPsych.timelineVariable('trial') },
       css_classes: ['stimulus'],
       // Custom data to be included in output
       on_finish: function(data) {
+        
+    	  // Save trial number
+        data.trial = TrialNum;
+        
         // Log premature response attempts by writing 1
         if(data.response != null) {
           data.premature_response_attempts = 1;
@@ -966,18 +930,25 @@
 
     var ISInterval = {
       type: jsPsychHtmlKeyboardResponse,
-      trial_duration: jsPsych.timelineVariable('ISInterval'),
+      trial_duration: function() {
+        // Set interval with a varying duration to boost participants' attention. Save interval and apply it.
+        var trial_duration = jsPsych.randomization.sampleWithoutReplacement([1400, 1450, 1500, 1550, 1600], 1)[0];
+        return trial_duration
+      },
       response_ends_trial: false,
       stimulus: ' ',
       // Choices set below to allow logging any premature response attempts
       choices: ['f', 'j'],
       data: { // add info to output
-        trial: jsPsych.timelineVariable('trial'),
-        ISInterval: jsPsych.timelineVariable('ISInterval')
+        ISInterval: trial_duration
       },
       css_classes: ['stimulus'],
       // Custom data to be included in output
       on_finish: function(data) {
+        
+    	  // Save trial number
+        data.trial = TrialNum;
+        
         // Log premature response attempts by writing 1
         if(data.response != null) {
           data.premature_response_attempts = 1;
@@ -997,10 +968,13 @@
       choices: ['f', 'j'],
       response_ends_trial: false,
       trial_duration: 100,
-      data: { trial: jsPsych.timelineVariable('trial') },
       css_classes: ['stimulus'],
       // Custom data to be included in output
       on_finish: function(data) {
+        
+    	  // Save trial number
+        data.trial = TrialNum;
+        
         // Log premature response attempts by writing 1
         if(data.response != null) {
           data.premature_response_attempts = 1;
@@ -1027,7 +1001,6 @@
       css_classes: ['stimulus'],
       data: { // add info to output
         task: jsPsych.timelineVariable('task'),
-        trial: jsPsych.timelineVariable('trial'),
         prime: jsPsych.timelineVariable('prime'),
         target: jsPsych.timelineVariable('target'),
         corr_rsp: jsPsych.timelineVariable('corr_rsp'),
@@ -1036,6 +1009,9 @@
 
       // Custom data to be included in output
       on_finish: function(data) {
+        
+    	  // Save trial number
+        data.trial = TrialNum;
 
         if(data.response != null) {
           // Label correct responses
@@ -1122,7 +1098,6 @@
 
     var SemPri_feedback = {
       type: jsPsychHtmlKeyboardResponse,
-      data: { trial: jsPsych.timelineVariable('trial') },
       stimulus: function() {
         if(jsPsych.data.getLastTrialData().values()[0].accuracy == 'correct') {
           return '<p><green-button> &check; </green-button></p>'
@@ -1133,7 +1108,14 @@
         }
       },
       choices: 'NO_KEYS',
-      trial_duration: 800
+      trial_duration: 800,
+
+      // Custom data to be included in output
+      on_finish: function(data) {
+        
+    	  // Save trial number
+        data.trial = TrialNum;
+      }
     };
 
     // The intertrial interval is the last part of every trial
@@ -1144,9 +1126,15 @@
         // Set interval with a varying duration to boost participants' attention
         return jsPsych.randomization.sampleWithoutReplacement([1400, 1450, 1500, 1550, 1600], 1)[0];
       },
-      data: { trial: jsPsych.timelineVariable('trial') },
       response_ends_trial: false,
-      css_classes: ['stimulus']
+      css_classes: ['stimulus'],
+
+      // Custom data to be included in output
+      on_finish: function(data) {
+        
+    	  // Save trial number
+        data.trial = TrialNum;
+      }
     };
 
 
@@ -1159,9 +1147,9 @@
 
 
     /* First, create set of interstimulus intervals from a range between 60 and 
-    1,200 ms. First, the range is split into as many integers as the minimum 
-    number of trials, equally for all participants. Afterwards, all SOAs are 
-    randomised within participants. */
+    1,200 ms. The range is split into as many integers as the minimum number of 
+    trials, equally for all participants. Afterwards, all SOAs are randomised 
+    within participants. */
 
     // Create range of SOAs
     ISIntervals_practice_trials =
@@ -1178,50 +1166,22 @@
     var ISIntervals_practice_trials =
       new Array(SemPri_practice_stimuli.length).fill(ISIntervals_practice_trials).flat();
 
-
-    /* Create timeline variable iteratively over trials using a for-of loop. 
-    Two preparatory steps are performed before running the loop. */
-
-    // 1. Initialise SemPri_practice_STIMULI array
-    SemPri_practice_STIMULI = [];
-
-    // 2. Randomise trial order
-
-    var trial_order =
-      Array.from({length: SemPri_practice_stimuli.length}, (v, k) => k);
-
-    var randomised_trial_order =
-      jsPsych.randomization.sampleWithoutReplacement(trial_order,
-        SemPri_practice_stimuli.length);
-
-    // 3. Run loop. Names of some variables are expanded.
-    for(const i of randomised_trial_order) {
-      SemPri_practice_STIMULI.push({
-        task: 'SemPri_practice',
-        prime: SemPri_practice_stimuli[i].PW, // name changed to 'prime'
-        target: SemPri_practice_stimuli[i].TW, // name changed to 'target'
-        corr_rsp: SemPri_practice_stimuli[i].CR, // name changed to 'corr_rsp', correct response
-        ISInterval: ISIntervals_practice_trials[i]
-      })
-    }
-
-    /* Create trial numbers iteratively. Important: the names of three variables 
-    used below ('prime', 'target', 'corr_rsp') were set in the for loops above. */
-
-    // Use `range` function created above
-
-    var final_SemPri_practice_STIMULI = [];
-
-    for(const i of Array.from({length:SemPri_practice_STIMULI.length},(v,k)=>k)) {
-      final_SemPri_practice_STIMULI.push({
-        task: 'SemPri_practice',
-        trial: i + 1, // 1 added to override the default start from 0
-        prime: SemPri_practice_STIMULI[i].prime, // prime word
-        target: SemPri_practice_STIMULI[i].target, // target word
-        corr_rsp: SemPri_practice_STIMULI[i].corr_rsp, // correct response
-        ISInterval: ISIntervals_practice_trials[i]
-      })
-    }
+    // Specify task and clarify names of some variables
+    
+    SemPri_practice_stimuli.forEach( function(data) {
+      
+      data['task'] = 'SemPri_practice';
+      
+      data['prime'] = data['PW'];
+      data['target'] = data['TW'];
+      data['corr_rsp'] = data['CR'];
+      data['prime'] = data['PW'];
+      
+      // delete deprecated variables
+      delete data['PW'];
+      delete data['TW'];
+      delete data['CR'];
+    });
 
 
     /* Assemble practice trials timeline using some of the components 
@@ -1230,7 +1190,12 @@
     var SemPri_practice_timeline = {
       timeline: [ SemPri_fixation, prime, ISInterval, target_100ms, 
         target, SemPri_feedback, SemPri_intertrial_interval ],
-      timeline_variables: final_SemPri_practice_STIMULI
+      timeline_variables: SemPri_practice_stimuli,
+      randomize_order: true,
+      // restart trial count at the beginning of this timeline
+      on_timeline_start: function() {
+        TrialNum = 0
+      }
     };
     // Add to general timeline
     language_vision_SemPri_TIMELINE.push(SemPri_practice_timeline);
@@ -1583,8 +1548,8 @@
     Two preparatory steps are performed before running the loops. */
 
     // 1. Initialise stimuli arrays 
-    SemPri_Block1_STIMULI = [];
-    SemPri_Block2_STIMULI = [];
+    var SemPri_Block1_STIMULI = [];
+    var SemPri_Block2_STIMULI = [];
 
     // 2. Randomise trial order in each block
 
@@ -1680,14 +1645,19 @@
       timeline: [ SemPri_fixation, prime, ISInterval, target_100ms, 
       target, SemPri_conditional_instructional_manipulation_check, 
       SemPri_intertrial_interval ],
-      timeline_variables: final_SemPri_Block1_STIMULI
+      timeline_variables: final_SemPri_Block1_STIMULI,
+      randomize_order: true,
+      // restart trial count at the beginning of this timeline
+      on_timeline_start: function() {
+        TrialNum = 0
+      }
     };
     // Add to general timeline
-    language_vision_SemPri_TIMELINE.push(SemPri_Block1_timeline);
+//    language_vision_SemPri_TIMELINE.push(SemPri_Block1_timeline);
 
 
     // Add break to general timeline
-    language_vision_SemPri_TIMELINE.push(break_between_blocks);
+//    language_vision_SemPri_TIMELINE.push(break_between_blocks);
 
 
 
@@ -1703,8 +1673,8 @@
       trial_duration: 15000,
       choices: [' '],
       stimulus: function() {
-        return '<div>Please remember: press <button>F</button> if the lowercase word ' +
-          'is primarily abstract (for instance, <i>wait</i>), or press <button>J</button> ' +
+        return '<div>Please remember: press <button>F</button> if the lowercase word is ' +
+          'primarily abstract (for instance, <i>wait</i>), or press <button>J</button> ' +
           'if it is primarily concrete (for instance, <i>water</i>). <br>' +
           'Press the space bar to proceed.</div>';
       }
@@ -1719,13 +1689,18 @@
       timeline: [ SemPri_fixation, prime, ISInterval, target_100ms,
       target, SemPri_conditional_instructional_manipulation_check, 
       SemPri_intertrial_interval ],
-      timeline_variables: final_SemPri_Block1_STIMULI
+      timeline_variables: final_SemPri_Block2_STIMULI,
+      randomize_order: true,
+      // restart trial count at the beginning of this timeline
+      on_timeline_start: function() {
+        TrialNum = 0
+      }
     };
     // Add to general timeline
-    language_vision_SemPri_TIMELINE.push(SemPri_Block2_timeline);
+//    language_vision_SemPri_TIMELINE.push(SemPri_Block2_timeline);
 
     // Transition to next task
-    language_vision_SemPri_TIMELINE.push(break_between_tasks);
+//    language_vision_SemPri_TIMELINE.push(break_between_tasks);
 
 
 
