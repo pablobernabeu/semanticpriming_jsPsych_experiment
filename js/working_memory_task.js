@@ -1,5 +1,22 @@
 
 
+/********************************************/
+/** WORKING MEMORY TASK (tag: 'WorkMem')   **/
+/********************************************/
+
+/* 
+The working memory task is operationalised with a backward digit span task.
+This task draws on the code shared by Stephen Van Hedger at 
+https://github.com/svanhedger/jspsych/blob/master/scripts/backward-digit-span 
+
+Procedure. On each trial, participants see a string of digits. Then, they 
+must click on buttons to report these digits in reverse order. The task 
+is adaptive based on a 1:2 staircase procedure. That is, a correct answer 
+will increase the digit span by one, whereas two incorrect answers in a 
+row will decrease the span by one.
+*/
+
+
 // General variables and functions for the backward digit span task
 
 var currentDigitList;  // current digit list
@@ -26,14 +43,48 @@ var exitDigits;  // for exiting the digit loop
 
 const arrSum = arr => arr.reduce((a,b) => a + b, 0)  // simple variable for calculating sum of an array
 
-// function to push button responses to array
+
+/* Function to push button responses to array and submit 
+   automatically once all digits have been entered. */
+   
 var recordClick = function(elm) {
-	response.push(Number($(elm).text()))
-	document.getElementById('echoed_txt').innerHTML = response;
-	// Separate digits with spaces rather than commas
-	document.getElementById('echoed_txt').innerHTML = 
-	  document.getElementById('echoed_txt').innerHTML.replace(/,/g, ' ')
-}
+  response.push(Number($(elm).text()));  // Add clicked number to response
+
+  // Update the displayed input
+  document.getElementById('echoed_txt').innerHTML = response.join(' ');  // Separate digits by space
+
+  // Check if the response is complete (equal to currentSpan)
+  if (response.length === currentSpan) {
+    // Hide only the number buttons, not the echoed text
+    var numberButtons = document.querySelectorAll('.num-button');
+    numberButtons.forEach(function(button) {
+      button.style.display = 'none';  // Hide each button
+    });
+
+    // Center the echoed_txt on the screen
+    var echoedTxt = document.getElementById('echoed_txt');
+    echoedTxt.style.position = 'absolute';  // Absolute positioning
+    echoedTxt.style.top = '50%';            // Vertically center
+    echoedTxt.style.left = '50%';           // Horizontally center
+    echoedTxt.style.transform = 'translate(-50%, -50%)';  // Adjust to center correctly
+    echoedTxt.style.fontFamily = 'monospace';  // Optional: Monospace font for better number alignment
+    echoedTxt.style.whiteSpace = 'nowrap';    // Ensure the text stays on one line
+    echoedTxt.style.width = 'auto';           // Set the width to auto
+
+    // Set a dynamic width (adjust this based on the number of digits or screen size)
+    echoedTxt.style.minWidth = (response.length * 40) + 'px';  // 40px per digit for a good fit
+
+    // Keep echoed_txt visible for an additional 3,000 milliseconds
+    setTimeout(function() {
+      // Automatically finish the trial after 3 seconds
+      jsPsych.finishTrial({
+        response: response,  // Send the response array
+        accuracy: JSON.stringify(response) === JSON.stringify(WorkMem_correct_ans) ? 1 : 0  // Check accuracy
+      });
+    }, 3000);
+  }
+};
+
 
 // function to clear the response array
 var clearResponse = function() {
@@ -102,6 +153,9 @@ function updateSpan() {
 			staircaseIndex = 0;  // reset the staircase index
 		}
 	}
+  
+	// If trial is 1, set currentSpan to 3
+	if(TrialNum == 1) currentSpan = 3
 };
 
 
@@ -267,7 +321,7 @@ var WorkMem_response_screen = {
     return jsPsych.randomization.sampleWithoutReplacement([1400, 1450, 1500, 1550, 1600], 1)[0];
   },
   stimulus: response_grid,
-  choices: [' '],
+  choices: 'NO_KEYS',
   
   // Custom data to be included in output
 	on_finish: function(data){
@@ -460,96 +514,6 @@ var staircase_assess = {
 };
 
 
-
-/********************************************/
-/** WORKING MEMORY TASK (tag: 'WorkMem')   **/
-/********************************************/
-
-/* 
-The working memory task is operationalised with a backward digit span task.
-This task draws on the code shared by Stephen Van Hedger at 
-https://github.com/svanhedger/jspsych/blob/master/scripts/backward-digit-span 
-
-Procedure. On each trial, participants see a string of digits. Then, they 
-must click on buttons to report these digits in reverse order. The task 
-is adaptive based on a 1:2 staircase procedure. That is, a correct answer 
-will increase the digit span by one, whereas two incorrect answers in a 
-row will decrease the span by one.
-*/
-
-
-/* Instructional manipulation check abiding by Prolific's policy 
-   (https://researcher-help.prolific.co/hc/en-gb/articles/360009223553) */
-
-// Random number for the instructional_manipulation_check below
-var random_number = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: '',
-  trial_duration: 20,
-  choices: 'NO_KEYS',
-  on_finish: function(data) {
-    data.random_number = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000)
-    data.random_position = jsPsych.randomization.sampleWithoutReplacement([0, 1, 2, 3], 1)[0]
-  }
-};
-
-var instructional_manipulation_check = {
-  type: jsPsychHtmlKeyboardResponse,
-  trial_duration: 10000,
-  stimulus: function(data) {
-    if(jsPsych.data.getLastTrialData().values()[0].random_position == 0) {
-      return '<p>Performance has been low. Please enter the ' +
-        '<b>first</b> number in the following sequence: ' +
-        '<span style="font-weight:bold;">' +
-        jsPsych.data.getLastTrialData().values()[0].random_number +
-        '</span></p>'
-    } else if(jsPsych.data.getLastTrialData().values()[0].random_position == 1) {
-      return '<p>Performance has been low. Please enter the ' +
-        '<b>second</b> number in the following sequence: ' +
-        '<span style="font-weight:bold;">' +
-        jsPsych.data.getLastTrialData().values()[0].random_number +
-        '</span></p>'
-    } else if(jsPsych.data.getLastTrialData().values()[0].random_position == 2) {
-      return '<p>Performance has been low. Please enter the ' +
-        '<b>third</b> number in the following sequence: ' +
-        '<span style="font-weight:bold;">' +
-        jsPsych.data.getLastTrialData().values()[0].random_number +
-        '</span></p>'
-    } else if(jsPsych.data.getLastTrialData().values()[0].random_position == 3) {
-      return '<p>Performance has been low. Please enter the ' +
-        '<b>fourth</b> number in the following sequence: ' +
-        '<span style="font-weight:bold;">' +
-        jsPsych.data.getLastTrialData().values()[0].random_number +
-        '</span></p>'
-    }
-  },
-  on_finish: function(data) {
-    
-    // Register current task and trial number
-    data.task = jsPsych.data.get().last(3).values()[0].task;
-    data.trial = jsPsych.data.get().last(3).values()[0].trial;
-    
-    // Categorise passed check
-    if(data.response ==
-    jsPsych.data.get().last(2).values()[0].random_number.toString().charAt(jsPsych.data.get().last(2).values()[0].random_position)) {
-      data.instructional_manipulation_check = 'passed'
-      
-      // Categorise failed check
-      } else data.instructional_manipulation_check = 'failed';
-      
-      // Terminate experiment if two instructional manipulation checks have been failed
-      if(jsPsych.data.get().filter({
-        instructional_manipulation_check: 'failed'
-        }).count() == 2) {
-          jsPsych.endExperiment('<div>Unfortunately, the experiment cannot continue because ' +
-          'two instructional manipulation checks have been failed. Please return to Prolific ' +
-          'and click <button>Stop without Completing</button>. ' +
-          '<a href="https://app.prolific.co/submissions/complete?cc=CBXBRKZI">Click here to ' +
-          'return to <b>Prolific</b></a>. Thank you very much.</div>', data)
-    }
-  }
-};
-
 // On selected trials, administer instructional manipulation check if accuracy rate < 80%
 var WorkMem_conditional_instructional_manipulation_check = {
   timeline: [random_number, instructional_manipulation_check],
@@ -693,4 +657,10 @@ var working_memory_task = {
 	  WorkMem_practice2_timeline,
 	  WorkMem_main_timeline ]
 };
+// Push task to general timeline
+language_vision_SemPri_TIMELINE.push(working_memory_task);
+
+
+// Transition to next task
+language_vision_SemPri_TIMELINE.push(break_between_tasks);
 
